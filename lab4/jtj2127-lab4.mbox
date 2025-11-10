@@ -1,0 +1,2654 @@
+From 19777460d3b0944129134f67593979e300b0dee0 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:10:38 -0400
+Subject: [PATCH 01/22] first version of code for the lookup program, no
+ testing yet
+
+---
+ part1/mdb-lookup.c | 119 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
+ create mode 100644 part1/mdb-lookup.c
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+new file mode 100644
+index 0000000..62cda6d
+--- /dev/null
++++ b/part1/mdb-lookup.c
+@@ -0,0 +1,119 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include "mdb.h"
++#include "mylist.h"
++
++int main(int argc, char **argv) {
++	//sole command line argument = database file name
++	//thus argc = 2, only one command line argument + program name
++	//if argc != 2 write an error to stderr
++	if(argc!=2) {
++		fprintf(stderr, "Warning: %d arguments given, expected only 1 argument: database_filename\n", argc -1);
++		return 1;
++	}
++
++	//user input array, up to 1000 characters
++	char line[1000];
++
++	//when the program starts, you must first read all records from the database file into memory
++	//records must be kept in a linked list
++	
++	//open file
++	//first get filename from command line argument
++	const char *filename = argv[1];
++	//just want to read file so use "rb"
++	FILE *file = fopen(filename, "rb");
++	//if *file is null, perror
++	if(file == NULL) {
++		perror("Error opening database file");
++		exit(1);
++	}
++
++	//read database file one record at a time in a loop, putting record into linked list
++	//create iterators
++	//struct Node *head = NULL;
++	//struct Node *cur = NULL;
++
++	//create pointer to record
++	//malloc memory for records
++	struct MbdRec *record = (struct MbdRec *)malloc(sizeof(struct MbdRec));
++
++	//create list of records
++	struct List records;
++	initList(&records);
++
++	//create record # tracker
++	int record_number =1;
++
++
++
++	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
++	while(fread(record, sizeof(struct MbdRec), 1, file) ==1) {
++		//while it reads one line at a time of file, create a node for each line
++		struct Node *newRec = (struct Node *)malloc(sizeof(struct Node));
++		newRec = addAfter(&records, NULL, record);
++		if(newRec == NULL) {
++			perror("Error adding node");
++			exit(1);
++		}
++	}
++	//close file now that we have read it
++	fclose(file);
++
++	printf("lookup: ");
++
++	while(fgets(line, sizeof(line), stdin) != NULL) {
++		size_t lengthOfLookup = strlen(line);
++		if(lengthOfLookup > 0 && line[lengthOfLookup-1] == '\n') {
++			line[lengthOfLookup-1] = '\0';
++		}
++
++		line_first_5 = line[6];
++
++		struct Node *node = list.head;
++
++		while(node != NULL) {
++			struct MbdRec *curRec = (struct MbdRec *)node->data;
++			if(strstr(curRec->name, line_first_5) || strstr(curRec->msg, line_first_5)){
++				printf("%3d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
++			}
++			record_number++;
++		}
++	
++		removeAllNodes(list);
++		printf("lookup: ");
++	}
++	return 0;
++}
++			
++
++
++
++
++
++	
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++}
++
+-- 
+2.34.1
+
+
+From 489e5f758a8acdcdd4d5e04a6ccc2d60d235b0b0 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:14:50 -0400
+Subject: [PATCH 02/22] first version of Makefile built
+
+---
+ part1/Makefile | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 part1/Makefile
+
+diff --git a/part1/Makefile b/part1/Makefile
+new file mode 100644
+index 0000000..3753862
+--- /dev/null
++++ b/part1/Makefile
+@@ -0,0 +1,18 @@
++
++
++CC = gcc
++CFLAGS = -g -Wall -Wpedantic -std=c17
++LDFLAGS = 
++LDLIBS = -L../../lab3/solutions/part1 -lmylist
++
++INCFLAGS = -I../../lab3/solutions/part1
++
++mdb-lookup: mdb-lookup.o
++	$(CC) -o mdb-lookup mdb-lookup.o $(LDFLAGS) $(LDLIBS)
++
++mdb-lookup.o: mdb-lookup.c
++	$(CC) $(CFLAGS) $(INCFLAGS) -c -o mdb-lookup.o mdb-lookup.c
++
++.PHONY: clean
++clean: 
++	rm -f mdb-lookup mdb-lookup.o
+-- 
+2.34.1
+
+
+From d56cc07569aab00a41c41002c2a0d348f7a59b54 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:36:05 -0400
+Subject: [PATCH 03/22] first round of fixing errors in program after running
+ make
+
+---
+ part1/mdb-lookup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 62cda6d..23f70e3 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
+ 
+ 	//create pointer to record
+ 	//malloc memory for records
+-	struct MbdRec *record = (struct MbdRec *)malloc(sizeof(struct MbdRec));
++	struct MbdRec *record = (struct MbdRec *)malloc(sizeof(struct MdbRec));
+ 
+ 	//create list of records
+ 	struct List records;
+@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
+ 
+ 
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
+-	while(fread(record, sizeof(struct MbdRec), 1, file) ==1) {
++	while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+ 		struct Node *newRec = (struct Node *)malloc(sizeof(struct Node));
+ 		newRec = addAfter(&records, NULL, record);
+@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
+ 			line[lengthOfLookup-1] = '\0';
+ 		}
+ 
+-		line_first_5 = line[6];
++		char line_first_5 = line[6];
+ 
+ 		struct Node *node = list.head;
+ 
+-- 
+2.34.1
+
+
+From 1fa84d244284f02ef892714fa5ee29c56371fb8d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:38:00 -0400
+Subject: [PATCH 04/22] fixing more errors after second run of Make
+
+---
+ part1/mdb-lookup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 23f70e3..35b2a4f 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
+ 
+ 		char line_first_5 = line[6];
+ 
+-		struct Node *node = list.head;
++		struct Node *node = records.head;
+ 
+ 		while(node != NULL) {
+ 			struct MbdRec *curRec = (struct MbdRec *)node->data;
+-- 
+2.34.1
+
+
+From 33be3834383aaf18a6fbd39aba0a141012b6891a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:40:12 -0400
+Subject: [PATCH 05/22] fixing more errors in program after running make
+
+---
+ part1/mdb-lookup.c | 30 +-----------------------------
+ 1 file changed, 1 insertion(+), 29 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 35b2a4f..9823926 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
+ 			record_number++;
+ 		}
+ 	
+-		removeAllNodes(list);
++		removeAllNodes(records);
+ 		printf("lookup: ");
+ 	}
+ 	return 0;
+@@ -89,31 +89,3 @@ int main(int argc, char **argv) {
+ 			
+ 
+ 
+-
+-
+-
+-	
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-}
+-
+-- 
+2.34.1
+
+
+From 425aa067b525e8a571246bf0886273fe6661a4f1 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:46:00 -0400
+Subject: [PATCH 06/22] fixing more errors
+
+---
+ part1/mdb-lookup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 9823926..d7487bc 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -74,14 +74,14 @@ int main(int argc, char **argv) {
+ 		struct Node *node = records.head;
+ 
+ 		while(node != NULL) {
+-			struct MbdRec *curRec = (struct MbdRec *)node->data;
++			struct MdbRec *curRec = (struct MdbRec *)node->data;
+ 			if(strstr(curRec->name, line_first_5) || strstr(curRec->msg, line_first_5)){
+ 				printf("%3d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
+ 			}
+ 			record_number++;
+ 		}
+ 	
+-		removeAllNodes(records);
++		removeAllNodes(&records);
+ 		printf("lookup: ");
+ 	}
+ 	return 0;
+-- 
+2.34.1
+
+
+From 74dbd9c436f4b0ef40692784e901a2ae512318d2 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 16:56:00 -0400
+Subject: [PATCH 07/22] fixing segmentation core dumped errors
+
+---
+ part1/mdb-lookup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index d7487bc..9f71b07 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -80,10 +80,10 @@ int main(int argc, char **argv) {
+ 			}
+ 			record_number++;
+ 		}
+-	
+-		removeAllNodes(&records);
+-		printf("lookup: ");
+ 	}
++	removeAllNodes(&records);
++	printf("lookup: ");
++
+ 	return 0;
+ }
+ 			
+-- 
+2.34.1
+
+
+From c5d6bf2b637ab79a3617937191c55e0a131a3ab0 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 17:10:14 -0400
+Subject: [PATCH 08/22] fixing more errors: changing mbd to mdb throughout code
+ mistakes
+
+---
+ part1/mdb-lookup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 9f71b07..0abde34 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
+ 
+ 	//create pointer to record
+ 	//malloc memory for records
+-	struct MbdRec *record = (struct MbdRec *)malloc(sizeof(struct MdbRec));
++	struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+ 
+ 	//create list of records
+ 	struct List records;
+-- 
+2.34.1
+
+
+From 385e27a7ffdf2b016916de3a94904f6e258f58f9 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 17:31:24 -0400
+Subject: [PATCH 09/22] cleaning up my code to determine why I'm getting a
+ segmentation error
+
+---
+ part1/mdb-lookup.c | 34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 0abde34..01132f9 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -1,4 +1,4 @@
+-#include <stdio.h>
++i#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include "mdb.h"
+@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
+ 	//thus argc = 2, only one command line argument + program name
+ 	//if argc != 2 write an error to stderr
+ 	if(argc!=2) {
+-		fprintf(stderr, "Warning: %d arguments given, expected only 1 argument: database_filename\n", argc -1);
++		fprintf(stderr, "Usage: mdb-lookup <file_name>\n");
+ 		return 1;
+ 	}
+ 
+@@ -20,24 +20,24 @@ int main(int argc, char **argv) {
+ 	//records must be kept in a linked list
+ 	
+ 	//open file
+-	//first get filename from command line argument
+-	const char *filename = argv[1];
++
+ 	//just want to read file so use "rb"
+-	FILE *file = fopen(filename, "rb");
++	FILE *file = fopen(argv[1], "rb");
++
+ 	//if *file is null, perror
+ 	if(file == NULL) {
+-		perror("Error opening database file");
+-		exit(1);
++		perror("No file found");
++		return 1;
+ 	}
+ 
+ 	//read database file one record at a time in a loop, putting record into linked list
+ 	//create iterators
+ 	//struct Node *head = NULL;
+-	//struct Node *cur = NULL;
++	struct Node *prevNode = NULL;
+ 
+ 	//create pointer to record
+ 	//malloc memory for records
+-	struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
++
+ 
+ 	//create list of records
+ 	struct List records;
+@@ -51,15 +51,20 @@ int main(int argc, char **argv) {
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
+ 	while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+-		struct Node *newRec = (struct Node *)malloc(sizeof(struct Node));
+-		newRec = addAfter(&records, NULL, record);
+-		if(newRec == NULL) {
+-			perror("Error adding node");
++		struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
++
++		if(record == NULL) {
++			perror("malloc returned NULL");
+ 			exit(1);
+ 		}
++
++		record->name[15] = '\0';
++		record->msg[15] = '\0';
++		
++		struct Node *curNode = addAfter(&records, prevNode, record);
++		prevNode = curNode;
+ 	}
+ 	//close file now that we have read it
+-	fclose(file);
+ 
+ 	printf("lookup: ");
+ 
+@@ -81,6 +86,7 @@ int main(int argc, char **argv) {
+ 			record_number++;
+ 		}
+ 	}
++	fclose(file);
+ 	removeAllNodes(&records);
+ 	printf("lookup: ");
+ 
+-- 
+2.34.1
+
+
+From c4691f6b0425de0185175f16930162a3786fff3a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 19:27:27 -0400
+Subject: [PATCH 10/22] continuing to clean code and node vs. MdbRec to fix
+ core dump error
+
+---
+ part1/mdb-lookup.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 01132f9..abe0a6e 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
+ 
+ 	//user input array, up to 1000 characters
+ 	char line[1000];
++	char search_first5[6];
+ 
+ 	//when the program starts, you must first read all records from the database file into memory
+ 	//records must be kept in a linked list
+@@ -69,25 +70,33 @@ int main(int argc, char **argv) {
+ 	printf("lookup: ");
+ 
+ 	while(fgets(line, sizeof(line), stdin) != NULL) {
+-		size_t lengthOfLookup = strlen(line);
+-		if(lengthOfLookup > 0 && line[lengthOfLookup-1] == '\n') {
+-			line[lengthOfLookup-1] = '\0';
+-		}
++		strncpy(search, line, 5);
++		search[5] = '\0';
++		search[strcspn(search, "\n")] = '\0';
+ 
+-		char line_first_5 = line[6];
+ 
+ 		struct Node *node = records.head;
+ 
+ 		while(node != NULL) {
+ 			struct MdbRec *curRec = (struct MdbRec *)node->data;
+-			if(strstr(curRec->name, line_first_5) || strstr(curRec->msg, line_first_5)){
++			if(strstr(curRec->name, search) || strstr(curRec->msg, search)){
+ 				printf("%3d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
+ 			}
++			node = node->next;
+ 			record_number++;
+ 		}
+ 	}
++	struct Node *traverseFree = records.head;
++	while (traverseFree != NULL) {
++		struct Node *next = traverseFree->next;
++		free(traverseFree->data);
++		free(traverseFree);
++		traverseFree = next;
++	}
++
++	records.head = NULL;
+ 	fclose(file);
+-	removeAllNodes(&records);
++	
+ 	printf("lookup: ");
+ 
+ 	return 0;
+-- 
+2.34.1
+
+
+From 2e075b568a2020d63358da471e43fd5eee604e54 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 19:29:53 -0400
+Subject: [PATCH 11/22] fixing #include to alieviate errors
+
+---
+ part1/mdb-lookup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index abe0a6e..c41919a 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -1,4 +1,4 @@
+-i#include <stdio.h>
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include "mdb.h"
+-- 
+2.34.1
+
+
+From af933299709bc23b2d82c82727ccfa25da39c9b8 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 19:35:12 -0400
+Subject: [PATCH 12/22] fixing names of variables to be consistent
+
+---
+ part1/mdb-lookup.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index c41919a..6d97205 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -47,12 +47,15 @@ int main(int argc, char **argv) {
+ 	//create record # tracker
+ 	int record_number =1;
+ 
++	//create buffer
++	struct MdbRec *record;
++
+ 
+ 
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
+ 	while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+-		struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
++		record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+ 
+ 		if(record == NULL) {
+ 			perror("malloc returned NULL");
+@@ -70,16 +73,16 @@ int main(int argc, char **argv) {
+ 	printf("lookup: ");
+ 
+ 	while(fgets(line, sizeof(line), stdin) != NULL) {
+-		strncpy(search, line, 5);
++		strncpy(search_first5, line, 5);
+ 		search[5] = '\0';
+-		search[strcspn(search, "\n")] = '\0';
++		search[strcspn(search_first5, "\n")] = '\0';
+ 
+ 
+ 		struct Node *node = records.head;
+ 
+ 		while(node != NULL) {
+ 			struct MdbRec *curRec = (struct MdbRec *)node->data;
+-			if(strstr(curRec->name, search) || strstr(curRec->msg, search)){
++			if(strstr(curRec->name, search_first5) || strstr(curRec->msg, search_first5)){
+ 				printf("%3d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
+ 			}
+ 			node = node->next;
+@@ -102,5 +105,5 @@ int main(int argc, char **argv) {
+ 	return 0;
+ }
+ 			
+-
+-
++i
++search_first5
+-- 
+2.34.1
+
+
+From 639297cfe675e30a50255d4fede68f2e84dd076a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 19:37:14 -0400
+Subject: [PATCH 13/22] fixing more errors
+
+---
+ part1/mdb-lookup.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 6d97205..46cdc99 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -74,8 +74,8 @@ int main(int argc, char **argv) {
+ 
+ 	while(fgets(line, sizeof(line), stdin) != NULL) {
+ 		strncpy(search_first5, line, 5);
+-		search[5] = '\0';
+-		search[strcspn(search_first5, "\n")] = '\0';
++		search_first5[5] = '\0';
++		search_first5[strcspn(search_first5, "\n")] = '\0';
+ 
+ 
+ 		struct Node *node = records.head;
+@@ -104,6 +104,4 @@ int main(int argc, char **argv) {
+ 
+ 	return 0;
+ }
+-			
+-i
+-search_first5
++
+-- 
+2.34.1
+
+
+From 63741d851309cac00e9497d823075d7287706cb6 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 19:49:16 -0400
+Subject: [PATCH 14/22] fixing errors
+
+---
+ part1/mdb-lookup.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 46cdc99..ff78a68 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -48,19 +48,21 @@ int main(int argc, char **argv) {
+ 	int record_number =1;
+ 
+ 	//create buffer
+-	struct MdbRec *record;
+-
+-
++	struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
++	if(record == NULL) {
++		perror("malloc returned NULL");
++		exit(1);
++	}
+ 
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
+ 	while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+-		record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
++		//record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+ 
+-		if(record == NULL) {
+-			perror("malloc returned NULL");
+-			exit(1);
+-		}
++		//if(record == NULL) {
++		//	perror("malloc returned NULL");
++		//	exit(1);
++		//}
+ 
+ 		record->name[15] = '\0';
+ 		record->msg[15] = '\0';
+@@ -100,7 +102,7 @@ int main(int argc, char **argv) {
+ 	records.head = NULL;
+ 	fclose(file);
+ 	
+-	printf("lookup: ");
++	//printf("lookup: ");
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
+
+From 3001826e5363812f0b0c18e22cfbae0bc548b681 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 20:07:12 -0400
+Subject: [PATCH 15/22] horrible run test, attempting to fix errors
+
+---
+ part1/mdb-lookup.c | 41 +++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index ff78a68..d0779a6 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -48,14 +48,20 @@ int main(int argc, char **argv) {
+ 	int record_number =1;
+ 
+ 	//create buffer
+-	struct MdbRec *record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+-	if(record == NULL) {
+-		perror("malloc returned NULL");
+-		exit(1);
+-	}
++	struct MdbRec *record;
++	while(1) {
++		record = malloc(sizeof(struct MdbRec));
++		if(record == NULL) {
++			perror("malloc returned NULL");
++			exit(1);
++		}
+ 
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
+-	while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
++		if(fread(record, sizeof(struct MdbRec), 1, file) != 1) {
++			free(record);
++			break;
++		}
++		while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+ 		//record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+ 
+@@ -64,17 +70,24 @@ int main(int argc, char **argv) {
+ 		//	exit(1);
+ 		//}
+ 
+-		record->name[15] = '\0';
+-		record->msg[15] = '\0';
++			record->name[15] = '\0';
++			record->msg[15] = '\0';
+ 		
+-		struct Node *curNode = addAfter(&records, prevNode, record);
+-		prevNode = curNode;
++			struct Node *curNode = addAfter(&records, prevNode, record);
++			prevNode = curNode;
++		}
+ 	}
+ 	//close file now that we have read it
++	while(1) {
++		printf("lookup: ");
+ 
+-	printf("lookup: ");
+-
+-	while(fgets(line, sizeof(line), stdin) != NULL) {
++		if(fgets(line, sizeof(line), stdin) == NULL) {
++			if(feof(stdin)) {
++				break;
++			}
++			perror("fgets failure");
++			continue;
++		}
+ 		strncpy(search_first5, line, 5);
+ 		search_first5[5] = '\0';
+ 		search_first5[strcspn(search_first5, "\n")] = '\0';
+@@ -85,7 +98,7 @@ int main(int argc, char **argv) {
+ 		while(node != NULL) {
+ 			struct MdbRec *curRec = (struct MdbRec *)node->data;
+ 			if(strstr(curRec->name, search_first5) || strstr(curRec->msg, search_first5)){
+-				printf("%3d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
++				printf("%4d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
+ 			}
+ 			node = node->next;
+ 			record_number++;
+-- 
+2.34.1
+
+
+From 906dfb20497f99315fc017a01d3b10f9059f73f7 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 20:11:30 -0400
+Subject: [PATCH 16/22] attempting to fix reading the file errors, as it didn't
+ appear to work
+
+---
+ part1/mdb-lookup.c | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index d0779a6..8886a5b 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -61,21 +61,12 @@ int main(int argc, char **argv) {
+ 			free(record);
+ 			break;
+ 		}
+-		while(fread(record, sizeof(struct MdbRec), 1, file) ==1) {
+ 		//while it reads one line at a time of file, create a node for each line
+-		//record = (struct MdbRec *)malloc(sizeof(struct MdbRec));
+-
+-		//if(record == NULL) {
+-		//	perror("malloc returned NULL");
+-		//	exit(1);
+-		//}
+-
+-			record->name[15] = '\0';
+-			record->msg[15] = '\0';
+-		
+-			struct Node *curNode = addAfter(&records, prevNode, record);
+-			prevNode = curNode;
+-		}
++		record->name[15] = '\0';
++		record->msg[15] = '\0';
++		struct Node *curNode = addAfter(&records, prevNode, record);
++		prevNode = curNode;
++	
+ 	}
+ 	//close file now that we have read it
+ 	while(1) {
+-- 
+2.34.1
+
+
+From b98e1eb8bc2ef44061e66cb7546c563dbf819e77 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 20:14:54 -0400
+Subject: [PATCH 17/22] fixing recorb number so that it resets between lookups
+
+---
+ part1/mdb-lookup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 8886a5b..64d6a74 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
+ 
+ 
+ 		struct Node *node = records.head;
+-
++		record_number = 1;
+ 		while(node != NULL) {
+ 			struct MdbRec *curRec = (struct MdbRec *)node->data;
+ 			if(strstr(curRec->name, search_first5) || strstr(curRec->msg, search_first5)){
+-- 
+2.34.1
+
+
+From d309fba8d79c31935214cdf33d4ec3a33983c553 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 20:25:32 -0400
+Subject: [PATCH 18/22] fixing msg null terminator, was at the wrong spot
+
+---
+ part1/mdb-lookup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 64d6a74..8f2570f 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
+ 		}
+ 		//while it reads one line at a time of file, create a node for each line
+ 		record->name[15] = '\0';
+-		record->msg[15] = '\0';
++		record->msg[23] = '\0';
+ 		struct Node *curNode = addAfter(&records, prevNode, record);
+ 		prevNode = curNode;
+ 	
+-- 
+2.34.1
+
+
+From eef7376c593c73fffe6e121f5d5f941c13a0b5c8 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 21:05:24 -0400
+Subject: [PATCH 19/22] cleaning up code and comments
+
+---
+ part1/mdb-lookup.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/part1/mdb-lookup.c b/part1/mdb-lookup.c
+index 8f2570f..48bc721 100644
+--- a/part1/mdb-lookup.c
++++ b/part1/mdb-lookup.c
+@@ -31,13 +31,9 @@ int main(int argc, char **argv) {
+ 		return 1;
+ 	}
+ 
+-	//read database file one record at a time in a loop, putting record into linked list
+-	//create iterators
+-	//struct Node *head = NULL;
++	//create prevNode to use in addAfter later
+ 	struct Node *prevNode = NULL;
+ 
+-	//create pointer to record
+-	//malloc memory for records
+ 
+ 
+ 	//create list of records
+@@ -57,44 +53,61 @@ int main(int argc, char **argv) {
+ 		}
+ 
+ 	//read one record at a time, therefore, the number of objects we want to read using fread() is 1
++	//if not equal to 1, free that record and break out of while
+ 		if(fread(record, sizeof(struct MdbRec), 1, file) != 1) {
+ 			free(record);
+ 			break;
+ 		}
+-		//while it reads one line at a time of file, create a node for each line
++		//while it reads one line at a time of file, create a node for each line, adding it after the last line added
++		//set null terminators for name and msg components of each record
+ 		record->name[15] = '\0';
+ 		record->msg[23] = '\0';
+ 		struct Node *curNode = addAfter(&records, prevNode, record);
++		//iterate 
+ 		prevNode = curNode;
+ 	
+ 	}
+-	//close file now that we have read it
++	
+ 	while(1) {
+ 		printf("lookup: ");
++		
+ 
+ 		if(fgets(line, sizeof(line), stdin) == NULL) {
++			//check if EOF ctrl d is detected, if it is, break the code to terminate mdb-lookup
+ 			if(feof(stdin)) {
+ 				break;
+ 			}
++			//if it's NULL, user just hits enter, fgets can not get anything -> throw perror but continue because we want to print out the entire database if they just hit enter
+ 			perror("fgets failure");
+ 			continue;
+ 		}
++		//put 5 character of line into search_first5
+ 		strncpy(search_first5, line, 5);
++		//set null terminator
+ 		search_first5[5] = '\0';
++
+ 		search_first5[strcspn(search_first5, "\n")] = '\0';
+ 
+ 
+ 		struct Node *node = records.head;
++		//prepare a node to iterate through record to check for matches
++		//reset record_number to 1 between each "lookup :"
+ 		record_number = 1;
++
+ 		while(node != NULL) {
++			//while there are still records in the database, i.e., node is not NULL
++			//create a MdbRec for each node
++			//if users search appears in first (name) or second (msg) part of record, print what they said
+ 			struct MdbRec *curRec = (struct MdbRec *)node->data;
+ 			if(strstr(curRec->name, search_first5) || strstr(curRec->msg, search_first5)){
+ 				printf("%4d: {%s} said {%s}\n", record_number, curRec->name, curRec->msg);
+ 			}
++			//iterate node and record_number
+ 			node = node->next;
+ 			record_number++;
+ 		}
+ 	}
++	//free all nodes and data of the linked list records
+ 	struct Node *traverseFree = records.head;
+ 	while (traverseFree != NULL) {
+ 		struct Node *next = traverseFree->next;
+@@ -102,11 +115,11 @@ int main(int argc, char **argv) {
+ 		free(traverseFree);
+ 		traverseFree = next;
+ 	}
++	//reset head of list
++	//close the file
+ 
+ 	records.head = NULL;
+ 	fclose(file);
+-	
+-	//printf("lookup: ");
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
+
+From 6d6b3f7303418210a4c05f9b77ba24350ac4a783 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 21:17:30 -0400
+Subject: [PATCH 20/22] wrote README file
+
+---
+ README.txt | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/README.txt b/README.txt
+index 66dfd3e..71c0c7b 100644
+--- a/README.txt
++++ b/README.txt
+@@ -1,11 +1,24 @@
+ This file should contain:
+ 
+-  - your name
+-  - your UNI
+-  - lab assignment number
++  - Jordyn Jaffe
++  - jtj2127
++  - lab 4
+   - description for each part
+   
+ The description should indicate whether your solution for the part is
+ working or not.  You may also want to include anything else you would
+ like to communicate to the grader such as extra functionalities you
+ implemented or how you tried to fix your non-working code.
++
++Part 1. 
++a) List the name and message pairs you have inserted into the database:
++->first pair: name = JordynJ, message = Happy Sunday
++^(record 538)
++
++->second pair: name = JordynJ, message = happy halloween
++^(record 539)
++I was able to insert and read messages in our class database.
++
++b) My solution for the mdb-lookup program works as intended, with no errors or memory leaks. My program works identical to Jae's program I used in a) above. My solution runs with no issues, and output matches expected output. 
++Valgrind: 
++
+-- 
+2.34.1
+
+
+From 06186798a2e78bea99482c7bc34686b0217f94c9 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 21:33:12 -0400
+Subject: [PATCH 21/22] added valgrinds
+
+---
+ README.txt | 1350 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 1349 insertions(+), 1 deletion(-)
+
+diff --git a/README.txt b/README.txt
+index 71c0c7b..1db64f9 100644
+--- a/README.txt
++++ b/README.txt
+@@ -19,6 +19,1354 @@ a) List the name and message pairs you have inserted into the database:
+ ^(record 539)
+ I was able to insert and read messages in our class database.
+ 
+-b) My solution for the mdb-lookup program works as intended, with no errors or memory leaks. My program works identical to Jae's program I used in a) above. My solution runs with no issues, and output matches expected output. 
++b) My solution for the mdb-lookup program works as intended, with no errors or memory leaks. My program works identical to Jae's program I used in a) above. My solution runs with no issues, and output matches expected output. No leaks found using Valgrind. 
+ Valgrind: 
+ 
++==941248== Memcheck, a memory error detector
++==941248== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==941248== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==941248== Command: ./mdb-lookup
++==941248== 
++Usage: mdb-lookup <file_name>
++==941248== 
++==941248== HEAP SUMMARY:
++==941248==     in use at exit: 0 bytes in 0 blocks
++==941248==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
++==941248== 
++==941248== All heap blocks were freed -- no leaks are possible
++==941248== 
++==941248== For lists of detected and suppressed errors, rerun with: -s
++==941248== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==942877== Memcheck, a memory error detector
++==942877== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==942877== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==942877== Command: ./mdb-lookup ap-mdb
++==942877== 
++lookup: ==942877== 
++==942877== HEAP SUMMARY:
++==942877==     in use at exit: 0 bytes in 0 blocks
++==942877==   total heap usage: 1,199 allocs, 1,199 frees, 45,208 bytes allocated
++==942877== 
++==942877== All heap blocks were freed -- no leaks are possible
++==942877== 
++==942877== For lists of detected and suppressed errors, rerun with: -s
++==942877== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==945207== Memcheck, a memory error detector
++==945207== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==945207== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==945207== Command: ./mdb-lookup ap-mdb
++==945207== 
++lookup:    
++   1: {Jae Lee} said {Welcome to Lab 4!}
++   2: {AP sucks!} said {no one ever}
++   3: {Charlie} said {Let's Marvin Gaye}
++   4: {yerrrr} said {yerrrr}
++   5: {Colby} said {What's good bruv}
++   6: {Colby} said {Lakers in 5}
++   7: {Salia Nahshal} said {Hi APers}
++   8: {Salia Nahshal } said {Good luck!}
++   9: {Salia Nahshal } said {Bye!}
++  10: {madeleine} said {first double digit hayy}
++  11: {sean} said {crime and punishment}
++  12: {ben} said {the first us president}
++  13: {ben} said {like clean clothes}
++  14: {ben } said {a lot}
++  15: {rc} said {ap is the goat}
++  16: {May Ramati} said {hello AP}
++  17: {May Ramati} said {Good luck in lab 4!}
++  18: {May Ramati} said {Bye :)}
++  19: {home} said {return home}
++  20: {Cai} said {Hi}
++  21: {Vishnu } said {Inception best movie}
++  22: {blue apple} said {Do blue apples exist?}
++  23: {Vishnu} said {}
++  24: {Semih Gultekin} said {Good luck with assignme}
++  25: {Nitin Rao} said {Hello AP!}
++  26: {Farihah Chowdhu} said {Hiii happy last week of}
++  27: {Farihah} said {October}
++  28: {Kassey Chang} said {Hi AP}
++  29: {Katherine Lee} said {Happy Fall}
++  30: {Mingyuan Shao} said {Hi, Nice to meet everyo}
++  31: {Mingyuan Shao} said {AP is really fun!!}
++  32: {ml} said {Starting AP Lab 4 now!}
++  33: {Xingchen} said {Just do it}
++  34: {Kyleigh} said {That's my name!}
++  35: {Sam} said {hello!!!}
++  36: {the chicken} said {to the cow.}
++  37: {Sam} said {there are messages here}
++  38: {the tree} said {nothing it's a tree}
++  39: {Jorge} said {survive!}
++  40: {student } said {do easy exams Jae!}
++  41: {I} said {I added a message}
++  42: {Alison Wu} said {uh oh it's lab 4}
++  43: {ishan} said {whats good gang}
++  44: {taimurs} said {GYATT}
++  45: {SergeiPavlovich} said {walk in fridge}
++  46: {Arnesa} said {Hello!}
++  47: {Arnesa} said {Testing...}
++  48: {tiffany} said {tralalalalalala}
++  49: {ujir} said {irishman}
++  50: {sophie agbekpen} said {period queen}
++  51: {Alex N adn2130} said {Hello World!}
++  52: {Eden} said {Hi, how are you all tod}
++  53: {Alex N adn2130} said {Goodbye :)}
++  54: {Clarence Liu} said {Hi guys}
++  55: {Heidy Mendez} said {I am hungry rn}
++  56: {Alyssa} said {starting lab 4}
++  57: {Bar Kroitoro} said {Hello AP classmates}
++  58: {Bar Kroitoro} said {Hi everyone}
++  59: {madeline} said {good morning}
++  60: {Alexandra Garci} said {finally found this file}
++  61: {Shreya} said {good morning}
++  62: {Shreya} said {good night}
++  63: {good} said {day}
++  64: {Carson} said {Hello, c may we all get}
++  65: {Carson} said {congcongcong!}
++  66: {sc} said {almost fall break - you}
++  67: {sc} said {hellohellohello}
++  68: {stone} said {journey before destinat}
++  69: {stone} said {bing bong}
++  70: {Weiliang} said {-_-}
++  71: {Git} said {No more Git Questions i}
++  72: {Rick} said {Wubba Lubba dub-dub}
++  73: {hiiii} said {byeeee}
++  74: {king julian} said {AHHHHHHHHHHHHHHHHHHHHHH}
++  75: {Fahitza Quessa} said {Wow I just started this}
++  76: {Fahitza Quessa} said {I am just a girl}
++  77: {ellie} said {test hello}
++  78: {Mason McVey} said {hello world!}
++  79: {mkm2239} said {another msg}
++  80: {andromeda} said {   .   }
++  81: {fred} said {great}
++  82: {Bae Lee} said {my favorite class <3}
++  83: {Nicholas} said {we out here}
++  84: {Jae} said {Get started with lab4 !}
++  85: {Shir S} said {Hi there}
++  86: {:)} said {hi}
++  87: {emma} said {hey what's up}
++  88: {Trishna} said {why is Pupin so cold}
++  89: {Adam Dawood} said {Hello}
++  90: {Farris} said {Hello!}
++  91: {Alqalam} said {This is pretty cool!}
++  92: {Jess} said {Hello you all APers!}
++  93: {Jess} said {How was class today?}
++  94: {Saloni Jain} said {}
++  95: {Saloni Jain} said {hi everyone!}
++  96: {I hit something} said {No stormtrooper ever}
++  97: {Andre} said {hi guys}
++  98: {Alice} said {always hangry}
++  99: {Teresa } said {message}
++ 100: {IceSpice} said {She a baddie, she know }
++ 101: {IceSpice} said {She a baddie with her b}
++ 102: {Jacob} said {testing message}
++ 103: {Jae} said {Get started w lab4 now!}
++ 104: {Elena} said {hi :)}
++ 105: {Mufasa} said {What up Jae }
++ 106: {Juan} said {azul=blue}
++ 107: {Fabi} said {Happy Halloween}
++ 108: {Ben} said {seg fault core dumped}
++ 109: {Ben Fu} said {hello world dude}
++ 110: {student} said {hello there AP}
++ 111: {Ai Siqi} said {One divides into two!}
++ 112: {Jacques Lacan} said {I think where I am not}
++ 113: {Jorge } said {just another comment}
++ 114: {Sam} said {java > C}
++ 115: {Ari} said {time for lab4}
++ 116: {guacamole} said {passionfruit by drake}
++ 117: {Vayu} said {Hopefully this worked..}
++ 118: {i luv jae} said {my man jae is bae}
++ 119: {not Jae} said {Jae Jae Jae Jae Jae Joe}
++ 120: {Annalie} said {Hi}
++ 121: {Annalie} said {Bye}
++ 122: {richard} said {im so tired}
++ 123: {sunset lover} said {the sunset was so prett}
++ 124: {fee fi} said {fo fum}
++ 125: {one of us} said {on the trail}
++ 126: {david} said {hi friends! good luck}
++ 127: {ronaldo} said {messi sucks}
++ 128: {Katie} said {hello world!}
++ 129: {messi} said {ronaldo sucks}
++ 130: {} said {}
++ 131: {Katie Zhang} said {hello world 2}
++ 132: {student 123} said {hello everyone}
++ 133: {yaya} said {i miss 2019 tiktok}
++ 134: {yaya} said {can i get a hoya?}
++ 135: {yaya} said {how was your day? mine }
++ 136: {Michael} said {@michael.straus.two.s}
++ 137: {ag} said {what's up?}
++ 138: {things i miss} said {java garbage collector}
++ 139: {jae woo lee} said {3 words, 3 letters, 1 s}
++ 140: {my mom} said {hello children}
++ 141: {birdie mcbird} said {tweet tweet}
++ 142: {gemma collins} said {i'm claustrophobic}
++ 143: {Leelop} said {Bardee ess du (jamaican}
++ 144: {ap student} said {starting lab4!}
++ 145: {Kassey Chang} said {Hello again}
++ 146: {mm} said {i hope i dont fail this}
++ 147: {Daniel} said {Hi!}
++ 148: {Daniel} said {Why?}
++ 149: {Jae Kwon} said {Follow -> @jaeeekwon}
++ 150: {AB } said {hello}
++ 151: {AB} said {no yeah}
++ 152: {Sarah Bearde} said {Good morning, AP!}
++ 153: {Sarah Bearden} said {Live laugh love}
++ 154: {Sarah Bearden} said {testing testing 123}
++ 155: {Johnny} said {I did not hit her}
++ 156: {jae woo bee} said {buzz buzz}
++ 157: {Rahi} said {Hellooooooo}
++ 158: {Moises} said {This is pretty cool!}
++ 159: {jae} said {you all get A+ :)}
++ 160: {crrrrr} said {je suis le deluge}
++ 161: {Hope} said {hello ap!!}
++ 162: {Hope} said {is this working}
++ 163: {William W} said {Every man dies, not eve}
++ 164: {Bartleby} said {I would rather not}
++ 165: {zen} said {haii}
++ 166: {Mila} said {Hi}
++ 167: {Mila} said {Tudo bem?}
++ 168: {Marie Cat} said {meow~meow~~woof!}
++ 169: {Jae Lee} said {hi}
++ 170: {flu2104} said {Hello World}
++ 171: {Bryan} said {class of 2025!!!!!!!!!}
++ 172: {10TypesOfPeople} said {UnderstandBinaryOrNot}
++ 173: {Edward} said {Nuggets in 4}
++ 174: {Edward} said {Listen to TesseracT}
++ 175: {Jae} said {you shall not find this}
++ 176: {Aiden} said {Hello}
++ 177: {Aiden E.} said {Hello world}
++ 178: {ARB} said {Too many labs}
++ 179: {ARB} said {Just kidding! these are}
++ 180: {ARB} said {FUN ! DON"T tell the fu}
++ 181: {michelle} said {Thankful to the TA's}
++ 182: {test} said {hello lab4}
++ 183: {Skeele} said {part 1a is hard}
++ 184: {Taylor} said {1989 This Friday}
++ 185: {adele} said {hello its me}
++ 186: {bsb <3} said {i want it that way cuz }
++ 187: {Sandra Zelen} said {good luck on lab 4!}
++ 188: {Sandra Zelen} said {so real}
++ 189: {leah} said {:>  }
++ 190: {leah} said {woah this is so cool}
++ 191: {Tobechi Onwuka} said {testing}
++ 192: {owl} said {OVO}
++ 193: {willyfuey} said {cashews are the best nu}
++ 194: {arleen} said {  (         )  }
++ 195: {arleen} said {hi testing}
++ 196: {Sky} said {Check out CSC Bobagram!}
++ 197: {Sky} said {Put me down as referral}
++ 198: {Teresa} said {put me down instead for}
++ 199: {Teresa} said {csc bobagrams :)}
++ 200: {jessica} said {hola mi amigos}
++ 201: {jessica} said {como estas todos}
++ 202: {CR7} said {Siuuuuuuu!}
++ 203: {moon} said {I love me and C}
++ 204: {sun} said {coding in the moonlight}
++ 205: {Jayz} said {Barbs RISE!!!}
++ 206: {trishna} said {makefiles are starting }
++ 207: {Kait} said {hello!}
++ 208: {Ali} said {yeooo wsg}
++ 209: {Ali} said {po que e isso}
++ 210: {Samir} said {Hello AP!}
++ 211: {Ramya} said {hi everyone!}
++ 212: {Batman} said {Robin to the batmobile}
++ 213: {AP Student} said {What day is it?}
++ 214: {Jae} said {Send help!}
++ 215: {joe} said {yup}
++ 216: {Evelyn} said {Hello World}
++ 217: {Kevin } said {What's up?}
++ 218: {Zaina} said {hello world}
++ 219: {Zaina} said {pupin 301}
++ 220: {hello} said {world}
++ 221: {confucius} said {i got 99 problems but}
++ 222: {joe} said {line 222 is a silly goo}
++ 223: {i mean} said {line 224 is silly goose}
++ 224: {Enrista} said {slay}
++ 225: {poko} said {hello!}
++ 226: {Cat Escobar} said {Happy Spooky Season!}
++ 227: {JWP} said {I'm in butler ref at 2a}
++ 228: {timestamp} said {written@10.26.2:14}
++ 229: {Melisa} said {T-1 DAY TIL 1989(TV) DR}
++ 230: {Ruizhe Fu} said {Hii}
++ 231: {Zac} said {random times}
++ 232: {Z} said {start earlier, man}
++ 233: {Z} said {Happy Halloween}
++ 234: {marionn} said {HELLO}
++ 235: {Kira} said {message}
++ 236: {Meron} said {happy pre-Friday!}
++ 237: {Meron} said {halloweekend:))}
++ 238: {Marionna Saunde} said {wassup}
++ 239: {Marionna Saunde} said {happy halloween}
++ 240: {Marionna Saunde} said {vibezz}
++ 241: {Allyce} said {<3 <3 lmao}
++ 242: {Karin} said {This is cool!!}
++ 243: {hellen} said {hii hello bye}
++ 244: {sam c} said {i <3 analysis}
++ 245: {APer} said {the weather today is so}
++ 246: {john doe} said {i need an internship}
++ 247: {ronaldo} said {messi is the goat}
++ 248: {X} said {moonlight uh}
++ 249: {oppenheimer} said {now i am become death}
++ 250: {jae the bae} said {no wae i'm feelin kinda}
++ 251: {vzr} said {it's a beautiful day}
++ 252: {Melisa} said {spotify daylist >>>}
++ 253: {Makda} said {heyyy}
++ 254: {yoyo} said {Let's go to a Halloween}
++ 255: {yoyo} said {party! ye~}
++ 256: {Nithin C} said {Yasss}
++ 257: {poor_cs_stu} said {just finished fundie ex}
++ 258: {poor_cs_stu} said {And ap exam is coming..}
++ 259: {Mitski} said {bet on losing dogs}
++ 260: {riya} said {hello!}
++ 261: {riya kishen} said {part 1a!}
++ 262: {riya kishen} said {i'm doing lab 4!}
++ 263: {Maksym} said {hello world}
++ 264: { } said {wonder if you can messa}
++ 265: {\0} said {\0}
++ 266: {      } said {            }
++ 267: {rm mdb-cs3157} said {}
++ 268: {} said {reverse engineering mdb}
++ 269: {teri} said {this is too much}
++ 270: {Bayley} said {testing}
++ 271: {tyler} said {hello}
++ 272: {marco} said {polo}
++ 273: {w} said {mbappe deserves bdor}
++ 274: {hw} said {.... . .-.. .-.. ---}
++ 275: {youtube.com/} said {watch?v=dQw4w9WgXcQ}
++ 276: {yeahhhhhhhh} said {ok i can use that}
++ 277: {ksv} said {I want sweet potato}
++ 278: {tetra} said {ploid}
++ 279: {Fr  d  ric Chop} said {was a Polish composer a}
++ 280: {Rissa Kei Chua} said {Why is AP so hard?}
++ 281: {dedotated wam} said {whats the rec amount?}
++ 282: {sad ap student} said {take me back to java}
++ 283: {a} said {cs}
++ 284: {amadea} said {swimming after class :)}
++ 285: {Marc} said {Testing Code}
++ 286: {jinoo} said {hi}
++ 287: {lana} said {yes to heaven}
++ 288: {Layla} said {hi}
++ 289: {Matt} said {Hello World}
++ 290: {Emilianoooooo} said {IM A BEAST}
++ 291: {Emily} said {Hellooooooooooooooooooo}
++ 292: {Jacob Million} said {i heart ap}
++ 293: {boots} said {the house down}
++ 294: {we} said {must keep tehe average }
++ 295: {alonzo} said {hi}
++ 296: {wine} said {is it vegan?}
++ 297: {waldo} said {where am i}
++ 298: {elvin} said {leaving my mark}
++ 299: {scary costume} said {ap exam scores}
++ 300: {Wood Chuck} said {Would chuck if it could}
++ 301: {student} said {working on lab 4!}
++ 302: {taylor} said {1989 TV in 3 hours}
++ 303: {joe burrow} said {beat 49ers sunday}
++ 304: {tramy} said {hello world}
++ 305: {Cutie} said {Hi Everyone!}
++ 306: {sabby} said {): ap is hard but its o}
++ 307: {Emily} said {has the best roomie eve}
++ 308: {rhea} said {says hello}
++ 309: {Enid} said {guess my halloween cost}
++ 310: {dog} said {bark}
++ 311: {nemo} said {I love the C}
++ 312: {C++ ISO NL. 10} said {Pref underscore_style}
++ 313: {Manan} said {hello}
++ 314: {Rust} said {enters the chat & left}
++ 315: {Valgrind} said {I see dead ptrs}
++ 316: {annie} said {good luck on midterms!}
++ 317: {me} said {or not}
++ 318: {John} said {Testing}
++ 319: {John} said {Testing done bye}
++ 320: {Shon} said {so I hear ya like jazz}
++ 321: {mori} said {Jae is such a good lect}
++ 322: {spiderman} said {i am a superhero}
++ 323: {mike} said {hi i am mike}
++ 324: {thor} said {i don't know what a fun}
++ 325: {batman} said {i am not batman}
++ 326: {Taniyah Mason} said {You've got this!}
++ 327: {Taniyah Mason} said {Paint the town red}
++ 328: {the musicman} said {plz give me album recs!}
++ 329: {mr. musicless} said {i HATE music >:(}
++ 330: {Nick} said {help i'm trapped in AP!}
++ 331: {michelle twan} said {send help}
++ 332: {Brandon Pae} said {Excited for midterm!}
++ 333: {bart simpson} said {im like hey whats up he}
++ 334: {columbia hater} said {open the damn gates}
++ 335: {sam} said {betskatron}
++ 336: {Peder Dingsor} said {let's get started}
++ 337: {Peder } said {Manifesting a good midt}
++ 338: {how can i lose} said {if i'm already chose?}
++ 339: {pookie} said {its the way you act}
++ 340: {beep beep} said {keep it cute}
++ 341: {when you} said {when you when you}
++ 342: {Gal} said {Hello World}
++ 343: {Gal Kedem} said {Mcdonald's}
++ 344: {clinton} said {hello}
++ 345: {Andrew} said {Communism is cool}
++ 346: {Yoni} said {Class of 2053' proud ri}
++ 347: {Andrew} said {There is not in the wor}
++ 348: {We are Legioon.} said {We do not forgive.}
++ 349: {We do not forge} said {We are Anonymous.}
++ 350: {Pinchas} said {Giants for life}
++ 351: {aud} said {i am so deadfully confu}
++ 352: {Andrew Stein} said {If not now, when?}
++ 353: {aud} said {i meant dreadfully...}
++ 354: {aud} said {maybe i'm not so lost}
++ 355: {jadyn} said {have a good day :)}
++ 356: {troy bolton} said {bet on it}
++ 357: {pixar} said {lamplamplamp}
++ 358: {diego} said {i will start this hw be}
++ 359: {deegee} said {before sunday! }
++ 360: {Eva} said {hello}
++ 361: {Eva G} said {hellooo}
++ 362: {Millie Bear} said {tech is cool}
++ 363: {Friday} said {is kinyoub in Japanese}
++ 364: {Chinese Charact} said {   is compatible here?}
++ 365: {Keemin Lee} said {I'm not doing Part 2}
++ 366: {inigo montoya} said {you  killed my father}
++ 367: {inigo montoya} said {prepare to die!}
++ 368: {dimpy} said {computers arent real}
++ 369: {I} said {hello!}
++ 370: {I} said {starting lab4}
++ 371: {Lucy} said {Lab 4 is riveting}
++ 372: {Me again} said {Entering some more mess}
++ 373: {elias} said {Hi AP <3}
++ 374: {Alexia Popescu} said {Buna tuturor!}
++ 375: {Eric} said {cirE}
++ 376: {Galaxy} said {I'm better than apple}
++ 377: {Alexia} said {Happy Haloweekend!}
++ 378: {Elon Musk} said {when can I fight with M}
++ 379: {Haloween} said {BOO}
++ 380: {Jacob} said {yooooooo}
++ 381: {Zuck} said {Elon lets grapple}
++ 382: {Jim Lahey} said {I am the liquor!}
++ 383: { OB OB OB OB OB} said { OA OA OA OA OA OA OA O}
++ 384: {} said {}
++ 385: {Lucas} said {hi Theo and Alexia.}
++ 386: {Esteban} said {Don't quit}
++ 387: {socialconstruct} said {we pass if we fail}
++ 388: {Sandhya} said {First message :)}
++ 389: {              } said {Kalispera}
++ 390: {Sandhya} said {It's Friday!}
++ 391: {Theo} said {Lucas got 100 on midter}
++ 392: {Umme} said {hello AP world :)}
++ 393: {Umme} said {good luck on lab4}
++ 394: {AOT} said {Final part airs Nov 4th}
++ 395: {Eren} said {Yeager}
++ 396: {AP Student} said {Hello I'm Thomas}
++ 397: {Ariel} said {Hi allison}
++ 398: {Bayley} said {testing again}
++ 399: {Dominic } said {my name is not dom}
++ 400: {Gordon Ramsay} said {it's ***ing RAW}
++ 401: {Alessandra} said {hungry}
++ 402: {Ale} said {aleksy hungry}
++ 403: {Amrita Pal} said {hi everyone!!!}
++ 404: {layla} said {end the genocide}
++ 405: {Amrita Pal} said {guys my initials are AP}
++ 406: {Amrita Pal} said {happy halloweekend!!}
++ 407: {hudhud} said {happy halloween!}
++ 408: {NICHOLAS} said {should've started soone}
++ 409: {Nikola Desnica} said {Jae Lee = Mr AP}
++ 410: {hudhudny} said {I'm bored}
++ 411: {boo} said {I scared you}
++ 412: {bob} said {whaaaaaaaaaa}
++ 413: {henny kim} said {hello good night}
++ 414: {yo} said {wha}
++ 415: {star} said {Wish to get a decent sc}
++ 416: {star} said {Wishing a decent score}
++ 417: {Aurora} said { Coherence is a great m}
++ 418: {Adheesh K} said {sup yall I <3 AP}
++ 419: {Adheesh K} said {Good luck on lab 4!}
++ 420: {Gojo} said {I will live!}
++ 421: {notCamille} said {fall break is coming!}
++ 422: {layla} said {bardi esda (jamaican)}
++ 423: {Skylar} said {I wish I completed this}
++ 424: {neel shanmugam} said {databases are cool}
++ 425: {bryce} said {hello fella}
++ 426: {Adneen} said {Happy Halloween!}
++ 427: {Adneen } said {Hello!! }
++ 428: {kris jenner} said {ur doin amazing sweetie}
++ 429: {soulja boy} said {yuuuuuuuuuuuuuuuuuuu}
++ 430: {Batman} said {I am vengeance}
++ 431: {Rayan Hayle} said {Lab 4 started, midterm }
++ 432: {john} said {foobar}
++ 433: {conor} said {good mornin}
++ 434: {Lizette} said {hello}
++ 435: {Aliya Tang} said {hello world}
++ 436: {Aliya Tang} said {hi ap!!}
++ 437: {lixia} said {followme @lixia_chen_wu}
++ 438: {Michelle} said {Hi AP !!}
++ 439: {Michelle} said {This is cool :)}
++ 440: {iris} said {knock knock!!}
++ 441: {jae jae's} said {i love fried food}
++ 442: {Oduor} said {hello}
++ 443: {Jae Jae's} said {I am JJ's namesake}
++ 444: {haha} said {yoyo}
++ 445: {linda} said {im really tired rn}
++ 446: {Alex Seo} said {i like pizza}
++ 447: {AP Student} said {happy halloweekend}
++ 448: {roland.} said {:}
++ 449: {ryanh} said {hello}
++ 450: {frieren} said {A mere ten years ;(}
++ 451: {Sebastian} said {the quick brown fox}
++ 452: {Sebastian} said {jumped over the lazydog}
++ 453: {Leywin} said {realmheart}
++ 454: {Sung Jin Woo} said {Arise}
++ 455: {hi} said {yayyy}
++ 456: {} said {}
++ 457: {Faith G} said {Mandatory record post :}
++ 458: {Faith G} said {**post :))}
++ 459: {James Y} said {Hi everyone!}
++ 460: {ap student} said {starting lab 4}
++ 461: {Ethan ZHOU} said {hi I am here again}
++ 462: {Steve} said {I love Halloween}
++ 463: {Hao Cui} said {This is my message}
++ 464: {HC} said {LOL}
++ 465: {Simon} said {The weather is nice}
++ 466: {Simon} said {I am Czech}
++ 467: {Cecilia} said {is doing lab4e}
++ 468: {someone} said {hello}
++ 469: {Steve} said {testing}
++ 470: {Ice Spice} said {she a baddie she showin}
++ 471: {linds} said {i am scared}
++ 472: {Toya} said {Hi APers yay}
++ 473: {unknown} said {omomg}
++ 474: {ak} said {summer summer i know}
++ 475: {ak} said {aloha}
++ 476: {soreti} said {AAHHHHHHHH}
++ 477: {Toya } said {AP or Adv Prog? vote pl}
++ 478: {Austin} said {OR 1=1; DROP TABLE user}
++ 479: {diapavis} said {need a nap}
++ 480: {Greg Hirsch} said {if it is to be said}
++ 481: {Greg Hirsch} said {so it be, so it is}
++ 482: {ayaan} said {completing lab 4}
++ 483: {Tom Wambsgans} said {Can't make a Tomlette}
++ 484: {Tom Wambsgans} said {WO breaking a few Gregs}
++ 485: {n3si} said {According to all known }
++ 486: {according to al} said {l known laws of aviatio}
++ 487: {there is no way} said {a bee should be  able  }
++ 488: {to fly. Its win} said {gs are too small to get}
++ 489: {Cece} said {lab4}
++ 490: {Misha} said {what the dog doin}
++ 491: {Hailey} said {hey :D}
++ 492: {yes ok} said {no continue d          }
++ 493: {peso pluma} said {chauuuuuuuu}
++ 494: {lindsey} said {viva mexicooooooooooooo}
++ 495: {peso pluma} said {confia en el proceso}
++ 496: {Thomas Chen} said {My favorite professor i}
++ 497: {Thomas} said {s Jae Woo Lee}
++ 498: {twelve} said {equivalent to the produ}
++ 499: {Shan} said {difficult roads often l}
++ 500: {Shan} said {beautiful destinations.}
++ 501: {Luceeeeeeeeeee} said {Tested truncation}
++ 502: {Kathryn} said {i'm scared for exam2}
++ 503: {Liang Song} said {I just started}
++ 504: {silly rabbit} said {trix are for kids!}
++ 505: {gorilla} said {halloweekend x AP lab k}
++ 506: {good student} said {everything is great}
++ 507: {gloria} said {beep boop}
++ 508: {Zoie G} said {hey everyone! :-)}
++ 509: {Zoie G} said {My favorite color is ye}
++ 510: {sammy agrawal} said {ladies & gentlemen, we }
++ 511: {Zoie} said {Okay, this is my last m}
++ 512: {sammy agrawal} said {got em}
++ 513: {sammy agrawal} said {amazing saturday night}
++ 514: {sammy agrawal} said {AP=Absolute Party}
++ 515: {aidan} said {yah mean}
++ 516: {yo} said {yo}
++ 517: {william tang} said {AP at the function}
++ 518: {Matt} said {hello world}
++ 519: {anayeli :)} said {lollll}
++ 520: {yoyo} said {check out andrew bird's}
++ 521: {mr bird} said {check andrew bird's mus}
++ 522: {bee movie} said {according to all known }
++ 523: {procrastinator} said {i hope i can finish on }
++ 524: {Matt} said {Test 2}
++ 525: {Mike} said {world hello}
++ 526: {Mike} said {database record}
++ 527: {Mike} said {what is a pointer}
++ 528: {Emily} said {Testing testing!}
++ 529: {Zimou Liu} said {I caught the flu}
++ 530: {Mar} said {hi ap :/}
++ 531: {Wendy} said {Hello world}
++ 532: {Wendy} said {Start the lab4}
++ 533: {Anuar} said {starting lab4}
++ 534: {Ashley} said {Starting lab4!}
++ 535: {Ashley} said {Happy Halloweekend!}
++ 536: {Ygritte} said {You know nothing}
++ 537: {Wonders O wco21} said {hi}
++ 538: {JordynJ} said {Happy Sunday}
++ 539: {JordynJ} said {happy halloween }
++ 540: {Matrioshka} said {Patrioshka}
++ 541: {Julian R.} said {Matrioshka}
++ 542: {Divya} said {Hello my friend }
++ 543: {Zara} said {hi AP}
++ 544: {Zara} said {hello world}
++ 545: {Divya} said {new york in fall is awe}
++ 546: {Lucas Chen} said {hi!}
++ 547: {Andrew} said {Hi there!}
++ 548: {Sheen } said {Finally starting}
++ 549: {Sheen} said {go niners!}
++ 550: {student} said {This is my favorit clas}
++ 551: {akj} said {helloworld!!}
++ 552: {student1} said {this is fun}
++ 553: {why} said {the sad student}
++ 554: {Williams} said {He is in Europe}
++ 555: {BB} said {I am so stressed}
++ 556: {BB} said {I love this class Thank}
++ 557: {tired student} said {am done yay}
++ 558: {Esteban} said {I love NY}
++ 559: {Yinana} said {AP is killing me}
++ 560: {Anonymous} said {msg please}
++ 561: {yellow} said {yellower}
++ 562: {ArinJ} said {starting lab4 on time}
++ 563: {ArinJ} said {._.}
++ 564: {alan ma} said {hello AP!}
++ 565: {Ben Silverman} said {Yooooooo mad cool}
++ 566: {Ben S} said {AP amirite}
++ 567: {Ben S} said {truncation nation}
++ 568: {Alex Nguyen} said {beep boop}
++ 569: {test} said {test}
++ 570: {jeff} said {help me i just started}
++ 571: {jeff} said {yo pruebo esta base de }
++ 572: {Icaro Andrade S} said {Never gonna...}
++ 573: {Icaro Andrade S} said {Happy Halloween!}
++ 574: {Nancy} said {Spooktober}
++ 575: {justin} said {hello}
++ 576: {Nancy} said {Roar Lion Roar}
++ 577: {a student} said {help}
++ 578: {Jae} said {NO MORE HW EVER AGAIN!!}
++ 579: {Nabihah Ahmad} said {Free Palestine}
++ 580: {Billo} said {Boss}
++ 581: {Jae} said {haha you wish}
++ 582: {}  said  {} said {}  said  {}
++ 583: {} said {} said {} said {}
++ 584: {Elroy} said {imagine dragons}
++ 585: {Henry Zheng} said {Ben is my dad}
++ 586: {Mihir Uberoi} said {Sam Thomason}
++ 587: {Adam} said {I just started lab4 and}
++ 588: {Jessica Sun} said {Hello World}
++ 589: {Jessica Sun} said {Is everyone ready for t}
++ 590: {I love AP} said {AP is great}
++ 591: {tramy} said {checking one last time}
++ 592: {Scooby} said {Scooby Doo Bee Doo!}
++ 593: {Jonah Singer} said {happy halloween!}
++ 594: {Test} said {this is a Test}
++ 595: {Who} said {that ^^}
++ 596: {Jian Zhang} said {The pointer in C is cha}
++ 597: {NairaAltunkeser} said {are we out of the woods}
++lookup: ==945207== 
++==945207== HEAP SUMMARY:
++==945207==     in use at exit: 0 bytes in 0 blocks
++==945207==   total heap usage: 1,199 allocs, 1,199 frees, 45,720 bytes allocated
++==945207== 
++==945207== All heap blocks were freed -- no leaks are possible
++==945207== 
++==945207== For lists of detected and suppressed errors, rerun with: -s
++==945207== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==948680== Memcheck, a memory error detector
++==948680== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==948680== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==948680== Command: ./mdb-lookup ap-mdb
++==948680== 
++lookup: hello   
++  16: {May Ramati} said {hello AP}
++  35: {Sam} said {hello!!!}
++  67: {sc} said {hellohellohello}
++  77: {ellie} said {test hello}
++  78: {Mason McVey} said {hello world!}
++ 109: {Ben Fu} said {hello world dude}
++ 110: {student} said {hello there AP}
++ 128: {Katie} said {hello world!}
++ 131: {Katie Zhang} said {hello world 2}
++ 132: {student 123} said {hello everyone}
++ 140: {my mom} said {hello children}
++ 150: {AB } said {hello}
++ 161: {Hope} said {hello ap!!}
++ 182: {test} said {hello lab4}
++ 185: {adele} said {hello its me}
++ 207: {Kait} said {hello!}
++ 218: {Zaina} said {hello world}
++ 220: {hello} said {world}
++ 225: {poko} said {hello!}
++ 243: {hellen} said {hii hello bye}
++ 260: {riya} said {hello!}
++ 263: {Maksym} said {hello world}
++ 271: {tyler} said {hello}
++ 304: {tramy} said {hello world}
++ 308: {rhea} said {says hello}
++ 313: {Manan} said {hello}
++ 344: {clinton} said {hello}
++ 360: {Eva} said {hello}
++ 361: {Eva G} said {hellooo}
++ 369: {I} said {hello!}
++ 392: {Umme} said {hello AP world :)}
++ 413: {henny kim} said {hello good night}
++ 425: {bryce} said {hello fella}
++ 434: {Lizette} said {hello}
++ 435: {Aliya Tang} said {hello world}
++ 442: {Oduor} said {hello}
++ 449: {ryanh} said {hello}
++ 468: {someone} said {hello}
++ 518: {Matt} said {hello world}
++ 525: {Mike} said {world hello}
++ 544: {Zara} said {hello world}
++ 551: {akj} said {helloworld!!}
++ 564: {alan ma} said {hello AP!}
++ 575: {justin} said {hello}
++lookup: hellooooo   
++  16: {May Ramati} said {hello AP}
++  35: {Sam} said {hello!!!}
++  67: {sc} said {hellohellohello}
++  77: {ellie} said {test hello}
++  78: {Mason McVey} said {hello world!}
++ 109: {Ben Fu} said {hello world dude}
++ 110: {student} said {hello there AP}
++ 128: {Katie} said {hello world!}
++ 131: {Katie Zhang} said {hello world 2}
++ 132: {student 123} said {hello everyone}
++ 140: {my mom} said {hello children}
++ 150: {AB } said {hello}
++ 161: {Hope} said {hello ap!!}
++ 182: {test} said {hello lab4}
++ 185: {adele} said {hello its me}
++ 207: {Kait} said {hello!}
++ 218: {Zaina} said {hello world}
++ 220: {hello} said {world}
++ 225: {poko} said {hello!}
++ 243: {hellen} said {hii hello bye}
++ 260: {riya} said {hello!}
++ 263: {Maksym} said {hello world}
++ 271: {tyler} said {hello}
++ 304: {tramy} said {hello world}
++ 308: {rhea} said {says hello}
++ 313: {Manan} said {hello}
++ 344: {clinton} said {hello}
++ 360: {Eva} said {hello}
++ 361: {Eva G} said {hellooo}
++ 369: {I} said {hello!}
++ 392: {Umme} said {hello AP world :)}
++ 413: {henny kim} said {hello good night}
++ 425: {bryce} said {hello fella}
++ 434: {Lizette} said {hello}
++ 435: {Aliya Tang} said {hello world}
++ 442: {Oduor} said {hello}
++ 449: {ryanh} said {hello}
++ 468: {someone} said {hello}
++ 518: {Matt} said {hello world}
++ 525: {Mike} said {world hello}
++ 544: {Zara} said {hello world}
++ 551: {akj} said {helloworld!!}
++ 564: {alan ma} said {hello AP!}
++ 575: {justin} said {hello}
++lookup: Jordyn  
++ 538: {JordynJ} said {Happy Sunday}
++ 539: {JordynJ} said {happy halloween }
++lookup: JJordyn
++ 
++lookup:   
++   1: {Jae Lee} said {Welcome to Lab 4!}
++   2: {AP sucks!} said {no one ever}
++   3: {Charlie} said {Let's Marvin Gaye}
++   4: {yerrrr} said {yerrrr}
++   5: {Colby} said {What's good bruv}
++   6: {Colby} said {Lakers in 5}
++   7: {Salia Nahshal} said {Hi APers}
++   8: {Salia Nahshal } said {Good luck!}
++   9: {Salia Nahshal } said {Bye!}
++  10: {madeleine} said {first double digit hayy}
++  11: {sean} said {crime and punishment}
++  12: {ben} said {the first us president}
++  13: {ben} said {like clean clothes}
++  14: {ben } said {a lot}
++  15: {rc} said {ap is the goat}
++  16: {May Ramati} said {hello AP}
++  17: {May Ramati} said {Good luck in lab 4!}
++  18: {May Ramati} said {Bye :)}
++  19: {home} said {return home}
++  20: {Cai} said {Hi}
++  21: {Vishnu } said {Inception best movie}
++  22: {blue apple} said {Do blue apples exist?}
++  23: {Vishnu} said {}
++  24: {Semih Gultekin} said {Good luck with assignme}
++  25: {Nitin Rao} said {Hello AP!}
++  26: {Farihah Chowdhu} said {Hiii happy last week of}
++  27: {Farihah} said {October}
++  28: {Kassey Chang} said {Hi AP}
++  29: {Katherine Lee} said {Happy Fall}
++  30: {Mingyuan Shao} said {Hi, Nice to meet everyo}
++  31: {Mingyuan Shao} said {AP is really fun!!}
++  32: {ml} said {Starting AP Lab 4 now!}
++  33: {Xingchen} said {Just do it}
++  34: {Kyleigh} said {That's my name!}
++  35: {Sam} said {hello!!!}
++  36: {the chicken} said {to the cow.}
++  37: {Sam} said {there are messages here}
++  38: {the tree} said {nothing it's a tree}
++  39: {Jorge} said {survive!}
++  40: {student } said {do easy exams Jae!}
++  41: {I} said {I added a message}
++  42: {Alison Wu} said {uh oh it's lab 4}
++  43: {ishan} said {whats good gang}
++  44: {taimurs} said {GYATT}
++  45: {SergeiPavlovich} said {walk in fridge}
++  46: {Arnesa} said {Hello!}
++  47: {Arnesa} said {Testing...}
++  48: {tiffany} said {tralalalalalala}
++  49: {ujir} said {irishman}
++  50: {sophie agbekpen} said {period queen}
++  51: {Alex N adn2130} said {Hello World!}
++  52: {Eden} said {Hi, how are you all tod}
++  53: {Alex N adn2130} said {Goodbye :)}
++  54: {Clarence Liu} said {Hi guys}
++  55: {Heidy Mendez} said {I am hungry rn}
++  56: {Alyssa} said {starting lab 4}
++  57: {Bar Kroitoro} said {Hello AP classmates}
++  58: {Bar Kroitoro} said {Hi everyone}
++  59: {madeline} said {good morning}
++  60: {Alexandra Garci} said {finally found this file}
++  61: {Shreya} said {good morning}
++  62: {Shreya} said {good night}
++  63: {good} said {day}
++  64: {Carson} said {Hello, c may we all get}
++  65: {Carson} said {congcongcong!}
++  66: {sc} said {almost fall break - you}
++  67: {sc} said {hellohellohello}
++  68: {stone} said {journey before destinat}
++  69: {stone} said {bing bong}
++  70: {Weiliang} said {-_-}
++  71: {Git} said {No more Git Questions i}
++  72: {Rick} said {Wubba Lubba dub-dub}
++  73: {hiiii} said {byeeee}
++  74: {king julian} said {AHHHHHHHHHHHHHHHHHHHHHH}
++  75: {Fahitza Quessa} said {Wow I just started this}
++  76: {Fahitza Quessa} said {I am just a girl}
++  77: {ellie} said {test hello}
++  78: {Mason McVey} said {hello world!}
++  79: {mkm2239} said {another msg}
++  80: {andromeda} said {   .   }
++  81: {fred} said {great}
++  82: {Bae Lee} said {my favorite class <3}
++  83: {Nicholas} said {we out here}
++  84: {Jae} said {Get started with lab4 !}
++  85: {Shir S} said {Hi there}
++  86: {:)} said {hi}
++  87: {emma} said {hey what's up}
++  88: {Trishna} said {why is Pupin so cold}
++  89: {Adam Dawood} said {Hello}
++  90: {Farris} said {Hello!}
++  91: {Alqalam} said {This is pretty cool!}
++  92: {Jess} said {Hello you all APers!}
++  93: {Jess} said {How was class today?}
++  94: {Saloni Jain} said {}
++  95: {Saloni Jain} said {hi everyone!}
++  96: {I hit something} said {No stormtrooper ever}
++  97: {Andre} said {hi guys}
++  98: {Alice} said {always hangry}
++  99: {Teresa } said {message}
++ 100: {IceSpice} said {She a baddie, she know }
++ 101: {IceSpice} said {She a baddie with her b}
++ 102: {Jacob} said {testing message}
++ 103: {Jae} said {Get started w lab4 now!}
++ 104: {Elena} said {hi :)}
++ 105: {Mufasa} said {What up Jae }
++ 106: {Juan} said {azul=blue}
++ 107: {Fabi} said {Happy Halloween}
++ 108: {Ben} said {seg fault core dumped}
++ 109: {Ben Fu} said {hello world dude}
++ 110: {student} said {hello there AP}
++ 111: {Ai Siqi} said {One divides into two!}
++ 112: {Jacques Lacan} said {I think where I am not}
++ 113: {Jorge } said {just another comment}
++ 114: {Sam} said {java > C}
++ 115: {Ari} said {time for lab4}
++ 116: {guacamole} said {passionfruit by drake}
++ 117: {Vayu} said {Hopefully this worked..}
++ 118: {i luv jae} said {my man jae is bae}
++ 119: {not Jae} said {Jae Jae Jae Jae Jae Joe}
++ 120: {Annalie} said {Hi}
++ 121: {Annalie} said {Bye}
++ 122: {richard} said {im so tired}
++ 123: {sunset lover} said {the sunset was so prett}
++ 124: {fee fi} said {fo fum}
++ 125: {one of us} said {on the trail}
++ 126: {david} said {hi friends! good luck}
++ 127: {ronaldo} said {messi sucks}
++ 128: {Katie} said {hello world!}
++ 129: {messi} said {ronaldo sucks}
++ 130: {} said {}
++ 131: {Katie Zhang} said {hello world 2}
++ 132: {student 123} said {hello everyone}
++ 133: {yaya} said {i miss 2019 tiktok}
++ 134: {yaya} said {can i get a hoya?}
++ 135: {yaya} said {how was your day? mine }
++ 136: {Michael} said {@michael.straus.two.s}
++ 137: {ag} said {what's up?}
++ 138: {things i miss} said {java garbage collector}
++ 139: {jae woo lee} said {3 words, 3 letters, 1 s}
++ 140: {my mom} said {hello children}
++ 141: {birdie mcbird} said {tweet tweet}
++ 142: {gemma collins} said {i'm claustrophobic}
++ 143: {Leelop} said {Bardee ess du (jamaican}
++ 144: {ap student} said {starting lab4!}
++ 145: {Kassey Chang} said {Hello again}
++ 146: {mm} said {i hope i dont fail this}
++ 147: {Daniel} said {Hi!}
++ 148: {Daniel} said {Why?}
++ 149: {Jae Kwon} said {Follow -> @jaeeekwon}
++ 150: {AB } said {hello}
++ 151: {AB} said {no yeah}
++ 152: {Sarah Bearde} said {Good morning, AP!}
++ 153: {Sarah Bearden} said {Live laugh love}
++ 154: {Sarah Bearden} said {testing testing 123}
++ 155: {Johnny} said {I did not hit her}
++ 156: {jae woo bee} said {buzz buzz}
++ 157: {Rahi} said {Hellooooooo}
++ 158: {Moises} said {This is pretty cool!}
++ 159: {jae} said {you all get A+ :)}
++ 160: {crrrrr} said {je suis le deluge}
++ 161: {Hope} said {hello ap!!}
++ 162: {Hope} said {is this working}
++ 163: {William W} said {Every man dies, not eve}
++ 164: {Bartleby} said {I would rather not}
++ 165: {zen} said {haii}
++ 166: {Mila} said {Hi}
++ 167: {Mila} said {Tudo bem?}
++ 168: {Marie Cat} said {meow~meow~~woof!}
++ 169: {Jae Lee} said {hi}
++ 170: {flu2104} said {Hello World}
++ 171: {Bryan} said {class of 2025!!!!!!!!!}
++ 172: {10TypesOfPeople} said {UnderstandBinaryOrNot}
++ 173: {Edward} said {Nuggets in 4}
++ 174: {Edward} said {Listen to TesseracT}
++ 175: {Jae} said {you shall not find this}
++ 176: {Aiden} said {Hello}
++ 177: {Aiden E.} said {Hello world}
++ 178: {ARB} said {Too many labs}
++ 179: {ARB} said {Just kidding! these are}
++ 180: {ARB} said {FUN ! DON"T tell the fu}
++ 181: {michelle} said {Thankful to the TA's}
++ 182: {test} said {hello lab4}
++ 183: {Skeele} said {part 1a is hard}
++ 184: {Taylor} said {1989 This Friday}
++ 185: {adele} said {hello its me}
++ 186: {bsb <3} said {i want it that way cuz }
++ 187: {Sandra Zelen} said {good luck on lab 4!}
++ 188: {Sandra Zelen} said {so real}
++ 189: {leah} said {:>  }
++ 190: {leah} said {woah this is so cool}
++ 191: {Tobechi Onwuka} said {testing}
++ 192: {owl} said {OVO}
++ 193: {willyfuey} said {cashews are the best nu}
++ 194: {arleen} said {  (         )  }
++ 195: {arleen} said {hi testing}
++ 196: {Sky} said {Check out CSC Bobagram!}
++ 197: {Sky} said {Put me down as referral}
++ 198: {Teresa} said {put me down instead for}
++ 199: {Teresa} said {csc bobagrams :)}
++ 200: {jessica} said {hola mi amigos}
++ 201: {jessica} said {como estas todos}
++ 202: {CR7} said {Siuuuuuuu!}
++ 203: {moon} said {I love me and C}
++ 204: {sun} said {coding in the moonlight}
++ 205: {Jayz} said {Barbs RISE!!!}
++ 206: {trishna} said {makefiles are starting }
++ 207: {Kait} said {hello!}
++ 208: {Ali} said {yeooo wsg}
++ 209: {Ali} said {po que e isso}
++ 210: {Samir} said {Hello AP!}
++ 211: {Ramya} said {hi everyone!}
++ 212: {Batman} said {Robin to the batmobile}
++ 213: {AP Student} said {What day is it?}
++ 214: {Jae} said {Send help!}
++ 215: {joe} said {yup}
++ 216: {Evelyn} said {Hello World}
++ 217: {Kevin } said {What's up?}
++ 218: {Zaina} said {hello world}
++ 219: {Zaina} said {pupin 301}
++ 220: {hello} said {world}
++ 221: {confucius} said {i got 99 problems but}
++ 222: {joe} said {line 222 is a silly goo}
++ 223: {i mean} said {line 224 is silly goose}
++ 224: {Enrista} said {slay}
++ 225: {poko} said {hello!}
++ 226: {Cat Escobar} said {Happy Spooky Season!}
++ 227: {JWP} said {I'm in butler ref at 2a}
++ 228: {timestamp} said {written@10.26.2:14}
++ 229: {Melisa} said {T-1 DAY TIL 1989(TV) DR}
++ 230: {Ruizhe Fu} said {Hii}
++ 231: {Zac} said {random times}
++ 232: {Z} said {start earlier, man}
++ 233: {Z} said {Happy Halloween}
++ 234: {marionn} said {HELLO}
++ 235: {Kira} said {message}
++ 236: {Meron} said {happy pre-Friday!}
++ 237: {Meron} said {halloweekend:))}
++ 238: {Marionna Saunde} said {wassup}
++ 239: {Marionna Saunde} said {happy halloween}
++ 240: {Marionna Saunde} said {vibezz}
++ 241: {Allyce} said {<3 <3 lmao}
++ 242: {Karin} said {This is cool!!}
++ 243: {hellen} said {hii hello bye}
++ 244: {sam c} said {i <3 analysis}
++ 245: {APer} said {the weather today is so}
++ 246: {john doe} said {i need an internship}
++ 247: {ronaldo} said {messi is the goat}
++ 248: {X} said {moonlight uh}
++ 249: {oppenheimer} said {now i am become death}
++ 250: {jae the bae} said {no wae i'm feelin kinda}
++ 251: {vzr} said {it's a beautiful day}
++ 252: {Melisa} said {spotify daylist >>>}
++ 253: {Makda} said {heyyy}
++ 254: {yoyo} said {Let's go to a Halloween}
++ 255: {yoyo} said {party! ye~}
++ 256: {Nithin C} said {Yasss}
++ 257: {poor_cs_stu} said {just finished fundie ex}
++ 258: {poor_cs_stu} said {And ap exam is coming..}
++ 259: {Mitski} said {bet on losing dogs}
++ 260: {riya} said {hello!}
++ 261: {riya kishen} said {part 1a!}
++ 262: {riya kishen} said {i'm doing lab 4!}
++ 263: {Maksym} said {hello world}
++ 264: { } said {wonder if you can messa}
++ 265: {\0} said {\0}
++ 266: {      } said {            }
++ 267: {rm mdb-cs3157} said {}
++ 268: {} said {reverse engineering mdb}
++ 269: {teri} said {this is too much}
++ 270: {Bayley} said {testing}
++ 271: {tyler} said {hello}
++ 272: {marco} said {polo}
++ 273: {w} said {mbappe deserves bdor}
++ 274: {hw} said {.... . .-.. .-.. ---}
++ 275: {youtube.com/} said {watch?v=dQw4w9WgXcQ}
++ 276: {yeahhhhhhhh} said {ok i can use that}
++ 277: {ksv} said {I want sweet potato}
++ 278: {tetra} said {ploid}
++ 279: {Fr  d  ric Chop} said {was a Polish composer a}
++ 280: {Rissa Kei Chua} said {Why is AP so hard?}
++ 281: {dedotated wam} said {whats the rec amount?}
++ 282: {sad ap student} said {take me back to java}
++ 283: {a} said {cs}
++ 284: {amadea} said {swimming after class :)}
++ 285: {Marc} said {Testing Code}
++ 286: {jinoo} said {hi}
++ 287: {lana} said {yes to heaven}
++ 288: {Layla} said {hi}
++ 289: {Matt} said {Hello World}
++ 290: {Emilianoooooo} said {IM A BEAST}
++ 291: {Emily} said {Hellooooooooooooooooooo}
++ 292: {Jacob Million} said {i heart ap}
++ 293: {boots} said {the house down}
++ 294: {we} said {must keep tehe average }
++ 295: {alonzo} said {hi}
++ 296: {wine} said {is it vegan?}
++ 297: {waldo} said {where am i}
++ 298: {elvin} said {leaving my mark}
++ 299: {scary costume} said {ap exam scores}
++ 300: {Wood Chuck} said {Would chuck if it could}
++ 301: {student} said {working on lab 4!}
++ 302: {taylor} said {1989 TV in 3 hours}
++ 303: {joe burrow} said {beat 49ers sunday}
++ 304: {tramy} said {hello world}
++ 305: {Cutie} said {Hi Everyone!}
++ 306: {sabby} said {): ap is hard but its o}
++ 307: {Emily} said {has the best roomie eve}
++ 308: {rhea} said {says hello}
++ 309: {Enid} said {guess my halloween cost}
++ 310: {dog} said {bark}
++ 311: {nemo} said {I love the C}
++ 312: {C++ ISO NL. 10} said {Pref underscore_style}
++ 313: {Manan} said {hello}
++ 314: {Rust} said {enters the chat & left}
++ 315: {Valgrind} said {I see dead ptrs}
++ 316: {annie} said {good luck on midterms!}
++ 317: {me} said {or not}
++ 318: {John} said {Testing}
++ 319: {John} said {Testing done bye}
++ 320: {Shon} said {so I hear ya like jazz}
++ 321: {mori} said {Jae is such a good lect}
++ 322: {spiderman} said {i am a superhero}
++ 323: {mike} said {hi i am mike}
++ 324: {thor} said {i don't know what a fun}
++ 325: {batman} said {i am not batman}
++ 326: {Taniyah Mason} said {You've got this!}
++ 327: {Taniyah Mason} said {Paint the town red}
++ 328: {the musicman} said {plz give me album recs!}
++ 329: {mr. musicless} said {i HATE music >:(}
++ 330: {Nick} said {help i'm trapped in AP!}
++ 331: {michelle twan} said {send help}
++ 332: {Brandon Pae} said {Excited for midterm!}
++ 333: {bart simpson} said {im like hey whats up he}
++ 334: {columbia hater} said {open the damn gates}
++ 335: {sam} said {betskatron}
++ 336: {Peder Dingsor} said {let's get started}
++ 337: {Peder } said {Manifesting a good midt}
++ 338: {how can i lose} said {if i'm already chose?}
++ 339: {pookie} said {its the way you act}
++ 340: {beep beep} said {keep it cute}
++ 341: {when you} said {when you when you}
++ 342: {Gal} said {Hello World}
++ 343: {Gal Kedem} said {Mcdonald's}
++ 344: {clinton} said {hello}
++ 345: {Andrew} said {Communism is cool}
++ 346: {Yoni} said {Class of 2053' proud ri}
++ 347: {Andrew} said {There is not in the wor}
++ 348: {We are Legioon.} said {We do not forgive.}
++ 349: {We do not forge} said {We are Anonymous.}
++ 350: {Pinchas} said {Giants for life}
++ 351: {aud} said {i am so deadfully confu}
++ 352: {Andrew Stein} said {If not now, when?}
++ 353: {aud} said {i meant dreadfully...}
++ 354: {aud} said {maybe i'm not so lost}
++ 355: {jadyn} said {have a good day :)}
++ 356: {troy bolton} said {bet on it}
++ 357: {pixar} said {lamplamplamp}
++ 358: {diego} said {i will start this hw be}
++ 359: {deegee} said {before sunday! }
++ 360: {Eva} said {hello}
++ 361: {Eva G} said {hellooo}
++ 362: {Millie Bear} said {tech is cool}
++ 363: {Friday} said {is kinyoub in Japanese}
++ 364: {Chinese Charact} said {   is compatible here?}
++ 365: {Keemin Lee} said {I'm not doing Part 2}
++ 366: {inigo montoya} said {you  killed my father}
++ 367: {inigo montoya} said {prepare to die!}
++ 368: {dimpy} said {computers arent real}
++ 369: {I} said {hello!}
++ 370: {I} said {starting lab4}
++ 371: {Lucy} said {Lab 4 is riveting}
++ 372: {Me again} said {Entering some more mess}
++ 373: {elias} said {Hi AP <3}
++ 374: {Alexia Popescu} said {Buna tuturor!}
++ 375: {Eric} said {cirE}
++ 376: {Galaxy} said {I'm better than apple}
++ 377: {Alexia} said {Happy Haloweekend!}
++ 378: {Elon Musk} said {when can I fight with M}
++ 379: {Haloween} said {BOO}
++ 380: {Jacob} said {yooooooo}
++ 381: {Zuck} said {Elon lets grapple}
++ 382: {Jim Lahey} said {I am the liquor!}
++ 383: { OB OB OB OB OB} said { OA OA OA OA OA OA OA O}
++ 384: {} said {}
++ 385: {Lucas} said {hi Theo and Alexia.}
++ 386: {Esteban} said {Don't quit}
++ 387: {socialconstruct} said {we pass if we fail}
++ 388: {Sandhya} said {First message :)}
++ 389: {              } said {Kalispera}
++ 390: {Sandhya} said {It's Friday!}
++ 391: {Theo} said {Lucas got 100 on midter}
++ 392: {Umme} said {hello AP world :)}
++ 393: {Umme} said {good luck on lab4}
++ 394: {AOT} said {Final part airs Nov 4th}
++ 395: {Eren} said {Yeager}
++ 396: {AP Student} said {Hello I'm Thomas}
++ 397: {Ariel} said {Hi allison}
++ 398: {Bayley} said {testing again}
++ 399: {Dominic } said {my name is not dom}
++ 400: {Gordon Ramsay} said {it's ***ing RAW}
++ 401: {Alessandra} said {hungry}
++ 402: {Ale} said {aleksy hungry}
++ 403: {Amrita Pal} said {hi everyone!!!}
++ 404: {layla} said {end the genocide}
++ 405: {Amrita Pal} said {guys my initials are AP}
++ 406: {Amrita Pal} said {happy halloweekend!!}
++ 407: {hudhud} said {happy halloween!}
++ 408: {NICHOLAS} said {should've started soone}
++ 409: {Nikola Desnica} said {Jae Lee = Mr AP}
++ 410: {hudhudny} said {I'm bored}
++ 411: {boo} said {I scared you}
++ 412: {bob} said {whaaaaaaaaaa}
++ 413: {henny kim} said {hello good night}
++ 414: {yo} said {wha}
++ 415: {star} said {Wish to get a decent sc}
++ 416: {star} said {Wishing a decent score}
++ 417: {Aurora} said { Coherence is a great m}
++ 418: {Adheesh K} said {sup yall I <3 AP}
++ 419: {Adheesh K} said {Good luck on lab 4!}
++ 420: {Gojo} said {I will live!}
++ 421: {notCamille} said {fall break is coming!}
++ 422: {layla} said {bardi esda (jamaican)}
++ 423: {Skylar} said {I wish I completed this}
++ 424: {neel shanmugam} said {databases are cool}
++ 425: {bryce} said {hello fella}
++ 426: {Adneen} said {Happy Halloween!}
++ 427: {Adneen } said {Hello!! }
++ 428: {kris jenner} said {ur doin amazing sweetie}
++ 429: {soulja boy} said {yuuuuuuuuuuuuuuuuuuu}
++ 430: {Batman} said {I am vengeance}
++ 431: {Rayan Hayle} said {Lab 4 started, midterm }
++ 432: {john} said {foobar}
++ 433: {conor} said {good mornin}
++ 434: {Lizette} said {hello}
++ 435: {Aliya Tang} said {hello world}
++ 436: {Aliya Tang} said {hi ap!!}
++ 437: {lixia} said {followme @lixia_chen_wu}
++ 438: {Michelle} said {Hi AP !!}
++ 439: {Michelle} said {This is cool :)}
++ 440: {iris} said {knock knock!!}
++ 441: {jae jae's} said {i love fried food}
++ 442: {Oduor} said {hello}
++ 443: {Jae Jae's} said {I am JJ's namesake}
++ 444: {haha} said {yoyo}
++ 445: {linda} said {im really tired rn}
++ 446: {Alex Seo} said {i like pizza}
++ 447: {AP Student} said {happy halloweekend}
++ 448: {roland.} said {:}
++ 449: {ryanh} said {hello}
++ 450: {frieren} said {A mere ten years ;(}
++ 451: {Sebastian} said {the quick brown fox}
++ 452: {Sebastian} said {jumped over the lazydog}
++ 453: {Leywin} said {realmheart}
++ 454: {Sung Jin Woo} said {Arise}
++ 455: {hi} said {yayyy}
++ 456: {} said {}
++ 457: {Faith G} said {Mandatory record post :}
++ 458: {Faith G} said {**post :))}
++ 459: {James Y} said {Hi everyone!}
++ 460: {ap student} said {starting lab 4}
++ 461: {Ethan ZHOU} said {hi I am here again}
++ 462: {Steve} said {I love Halloween}
++ 463: {Hao Cui} said {This is my message}
++ 464: {HC} said {LOL}
++ 465: {Simon} said {The weather is nice}
++ 466: {Simon} said {I am Czech}
++ 467: {Cecilia} said {is doing lab4e}
++ 468: {someone} said {hello}
++ 469: {Steve} said {testing}
++ 470: {Ice Spice} said {she a baddie she showin}
++ 471: {linds} said {i am scared}
++ 472: {Toya} said {Hi APers yay}
++ 473: {unknown} said {omomg}
++ 474: {ak} said {summer summer i know}
++ 475: {ak} said {aloha}
++ 476: {soreti} said {AAHHHHHHHH}
++ 477: {Toya } said {AP or Adv Prog? vote pl}
++ 478: {Austin} said {OR 1=1; DROP TABLE user}
++ 479: {diapavis} said {need a nap}
++ 480: {Greg Hirsch} said {if it is to be said}
++ 481: {Greg Hirsch} said {so it be, so it is}
++ 482: {ayaan} said {completing lab 4}
++ 483: {Tom Wambsgans} said {Can't make a Tomlette}
++ 484: {Tom Wambsgans} said {WO breaking a few Gregs}
++ 485: {n3si} said {According to all known }
++ 486: {according to al} said {l known laws of aviatio}
++ 487: {there is no way} said {a bee should be  able  }
++ 488: {to fly. Its win} said {gs are too small to get}
++ 489: {Cece} said {lab4}
++ 490: {Misha} said {what the dog doin}
++ 491: {Hailey} said {hey :D}
++ 492: {yes ok} said {no continue d          }
++ 493: {peso pluma} said {chauuuuuuuu}
++ 494: {lindsey} said {viva mexicooooooooooooo}
++ 495: {peso pluma} said {confia en el proceso}
++ 496: {Thomas Chen} said {My favorite professor i}
++ 497: {Thomas} said {s Jae Woo Lee}
++ 498: {twelve} said {equivalent to the produ}
++ 499: {Shan} said {difficult roads often l}
++ 500: {Shan} said {beautiful destinations.}
++ 501: {Luceeeeeeeeeee} said {Tested truncation}
++ 502: {Kathryn} said {i'm scared for exam2}
++ 503: {Liang Song} said {I just started}
++ 504: {silly rabbit} said {trix are for kids!}
++ 505: {gorilla} said {halloweekend x AP lab k}
++ 506: {good student} said {everything is great}
++ 507: {gloria} said {beep boop}
++ 508: {Zoie G} said {hey everyone! :-)}
++ 509: {Zoie G} said {My favorite color is ye}
++ 510: {sammy agrawal} said {ladies & gentlemen, we }
++ 511: {Zoie} said {Okay, this is my last m}
++ 512: {sammy agrawal} said {got em}
++ 513: {sammy agrawal} said {amazing saturday night}
++ 514: {sammy agrawal} said {AP=Absolute Party}
++ 515: {aidan} said {yah mean}
++ 516: {yo} said {yo}
++ 517: {william tang} said {AP at the function}
++ 518: {Matt} said {hello world}
++ 519: {anayeli :)} said {lollll}
++ 520: {yoyo} said {check out andrew bird's}
++ 521: {mr bird} said {check andrew bird's mus}
++ 522: {bee movie} said {according to all known }
++ 523: {procrastinator} said {i hope i can finish on }
++ 524: {Matt} said {Test 2}
++ 525: {Mike} said {world hello}
++ 526: {Mike} said {database record}
++ 527: {Mike} said {what is a pointer}
++ 528: {Emily} said {Testing testing!}
++ 529: {Zimou Liu} said {I caught the flu}
++ 530: {Mar} said {hi ap :/}
++ 531: {Wendy} said {Hello world}
++ 532: {Wendy} said {Start the lab4}
++ 533: {Anuar} said {starting lab4}
++ 534: {Ashley} said {Starting lab4!}
++ 535: {Ashley} said {Happy Halloweekend!}
++ 536: {Ygritte} said {You know nothing}
++ 537: {Wonders O wco21} said {hi}
++ 538: {JordynJ} said {Happy Sunday}
++ 539: {JordynJ} said {happy halloween }
++ 540: {Matrioshka} said {Patrioshka}
++ 541: {Julian R.} said {Matrioshka}
++ 542: {Divya} said {Hello my friend }
++ 543: {Zara} said {hi AP}
++ 544: {Zara} said {hello world}
++ 545: {Divya} said {new york in fall is awe}
++ 546: {Lucas Chen} said {hi!}
++ 547: {Andrew} said {Hi there!}
++ 548: {Sheen } said {Finally starting}
++ 549: {Sheen} said {go niners!}
++ 550: {student} said {This is my favorit clas}
++ 551: {akj} said {helloworld!!}
++ 552: {student1} said {this is fun}
++ 553: {why} said {the sad student}
++ 554: {Williams} said {He is in Europe}
++ 555: {BB} said {I am so stressed}
++ 556: {BB} said {I love this class Thank}
++ 557: {tired student} said {am done yay}
++ 558: {Esteban} said {I love NY}
++ 559: {Yinana} said {AP is killing me}
++ 560: {Anonymous} said {msg please}
++ 561: {yellow} said {yellower}
++ 562: {ArinJ} said {starting lab4 on time}
++ 563: {ArinJ} said {._.}
++ 564: {alan ma} said {hello AP!}
++ 565: {Ben Silverman} said {Yooooooo mad cool}
++ 566: {Ben S} said {AP amirite}
++ 567: {Ben S} said {truncation nation}
++ 568: {Alex Nguyen} said {beep boop}
++ 569: {test} said {test}
++ 570: {jeff} said {help me i just started}
++ 571: {jeff} said {yo pruebo esta base de }
++ 572: {Icaro Andrade S} said {Never gonna...}
++ 573: {Icaro Andrade S} said {Happy Halloween!}
++ 574: {Nancy} said {Spooktober}
++ 575: {justin} said {hello}
++ 576: {Nancy} said {Roar Lion Roar}
++ 577: {a student} said {help}
++ 578: {Jae} said {NO MORE HW EVER AGAIN!!}
++ 579: {Nabihah Ahmad} said {Free Palestine}
++ 580: {Billo} said {Boss}
++ 581: {Jae} said {haha you wish}
++ 582: {}  said  {} said {}  said  {}
++ 583: {} said {} said {} said {}
++ 584: {Elroy} said {imagine dragons}
++ 585: {Henry Zheng} said {Ben is my dad}
++ 586: {Mihir Uberoi} said {Sam Thomason}
++ 587: {Adam} said {I just started lab4 and}
++ 588: {Jessica Sun} said {Hello World}
++ 589: {Jessica Sun} said {Is everyone ready for t}
++ 590: {I love AP} said {AP is great}
++ 591: {tramy} said {checking one last time}
++ 592: {Scooby} said {Scooby Doo Bee Doo!}
++ 593: {Jonah Singer} said {happy halloween!}
++ 594: {Test} said {this is a Test}
++ 595: {Who} said {that ^^}
++ 596: {Jian Zhang} said {The pointer in C is cha}
++ 597: {NairaAltunkeser} said {are we out of the woods}
++lookup: ==948680== 
++==948680== HEAP SUMMARY:
++==948680==     in use at exit: 0 bytes in 0 blocks
++==948680==   total heap usage: 1,199 allocs, 1,199 frees, 51,352 bytes allocated
++==948680== 
++==948680== All heap blocks were freed -- no leaks are possible
++==948680== 
++==948680== For lists of detected and suppressed errors, rerun with: -s
++==948680== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+-- 
+2.34.1
+
+
+From 26c867e2b92da4ef5bfb7a2993d43434467ce80c Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 29 Oct 2023 21:36:13 -0400
+Subject: [PATCH 22/22] commiting/tracking database file as per Jae's email
+
+---
+ part1/ap-mdb | Bin 0 -> 23880 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 part1/ap-mdb
+
+diff --git a/part1/ap-mdb b/part1/ap-mdb
+new file mode 100644
+index 0000000000000000000000000000000000000000..a580d0926ef22ab811f026461b27293bc4e2dc3b
+GIT binary patch
+literal 23880
+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
+
+literal 0
+HcmV?d00001
+
+-- 
+2.34.1
+
