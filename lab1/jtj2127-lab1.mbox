@@ -1,0 +1,53 @@
+From f06c502211f09a5c716d636409abcd70ac86ad0d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 18 Sep 2023 15:43:45 -0400
+Subject: [PATCH 1/2] add main.c
+
+---
+ part1/main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+ create mode 100644 part1/main.c
+
+diff --git a/part1/main.c b/part1/main.c
+new file mode 100644
+index 0000000..9d7036e
+--- /dev/null
++++ b/part1/main.c
+@@ -0,0 +1,5 @@
++int main()
++{
++	printf("part 1");
++}
++
+-- 
+2.34.1
+
+
+From 3d418e029f3e173b75989e2fc9a00ae7836ad4f0 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 18 Sep 2023 15:56:25 -0400
+Subject: [PATCH 2/2] making some progress
+
+- added stdio.h
+-added call to prime() function
+---
+ part1/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/part1/main.c b/part1/main.c
+index 9d7036e..924fa7f 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -1,5 +1,9 @@
++#include <stdio.h>
++
++
+ int main()
+ {
++	int x = prime();
+ 	printf("part 1");
+ }
+ 
+-- 
+2.34.1
+

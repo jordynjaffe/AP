@@ -1,0 +1,972 @@
+From 61f785eced12d29a7bbd76e4e019a9244460905b Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 16:35:23 -0400
+Subject: [PATCH 01/27] add main.c
+
+---
+ part1/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+ create mode 100644 part1/main.c
+
+diff --git a/part1/main.c b/part1/main.c
+new file mode 100644
+index 0000000..d2d3e66
+--- /dev/null
++++ b/part1/main.c
+@@ -0,0 +1,2 @@
++int main() 
++{}
+-- 
+2.34.1
+
+
+From 0723f14c8f29f1a57f0fb603ecbedd548f316c94 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 17:10:55 -0400
+Subject: [PATCH 02/27] gcd.c built
+
+---
+ part1/gcd.c  | 17 +++++++++++++++++
+ part1/gcd.h  |  3 +++
+ part1/main.c |  2 ++
+ 3 files changed, 22 insertions(+)
+ create mode 100644 part1/gcd.c
+ create mode 100644 part1/gcd.h
+
+diff --git a/part1/gcd.c b/part1/gcd.c
+new file mode 100644
+index 0000000..f943a87
+--- /dev/null
++++ b/part1/gcd.c
+@@ -0,0 +1,17 @@
++#include "gcd.h"
++
++int gcd(intx, int y){
++	if(x!=0 && y!=0){
++		while (y>0) {
++			int remain = x%y;
++			x = y;
++			y = remain;
++		}
++		if (x==0){
++			return y;
++		}
++		if(y==0){
++			return x;
++		}
++	}
++}
+diff --git a/part1/gcd.h b/part1/gcd.h
+new file mode 100644
+index 0000000..b95929c
+--- /dev/null
++++ b/part1/gcd.h
+@@ -0,0 +1,3 @@
++// gcd.h
++int gcd(int x, int y);
++
+diff --git a/part1/main.c b/part1/main.c
+index d2d3e66..5819424 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -1,2 +1,4 @@
++#include <stdio.h>
++
+ int main() 
+ {}
+-- 
+2.34.1
+
+
+From 22c73c2910553a98fb854feb94b604842a493db4 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 17:28:26 -0400
+Subject: [PATCH 03/27] prime.c and prime/h created o
+
+---
+ part1/prime.c | 22 ++++++++++++++++++++++
+ part1/prime.h |  3 +++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 part1/prime.c
+ create mode 100644 part1/prime.h
+
+diff --git a/part1/prime.c b/part1/prime.c
+new file mode 100644
+index 0000000..59a9387
+--- /dev/null
++++ b/part1/prime.c
+@@ -0,0 +1,22 @@
++#include "prime.h"
++int prime(int x){
++	int y = 1;
++	for (int i =2; i<= x/2; i++){
++		//if divisible by any number break out of loop, we know not prime
++		if(x%i == 0) {
++			y = 0;
++			break;
++		}
++	}
++	if(y==0){
++		//not prime
++		return 0; 
++	}
++	else {
++		//prime
++		return 1;
++	}
++}
++
++
++
+diff --git a/part1/prime.h b/part1/prime.h
+new file mode 100644
+index 0000000..4d8126c
+--- /dev/null
++++ b/part1/prime.h
+@@ -0,0 +1,3 @@
++//prime.h
++int prime(int x);
++
+-- 
+2.34.1
+
+
+From 326f443fabf45aed51827387879fd169a0ad7de2 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 17:51:17 -0400
+Subject: [PATCH 04/27] main.c file built
+
+---
+ part1/main.c | 32 +++++++++++++++++++++++++++++---
+ 1 file changed, 29 insertions(+), 3 deletions(-)
+
+diff --git a/part1/main.c b/part1/main.c
+index 5819424..e74c3c5 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -1,4 +1,30 @@
+ #include <stdio.h>
+-
+-int main() 
+-{}
++#include "prime.h"
++#include "gcd.h"
++int main() {
++	scanf("%d", "%d", x, y)
++	//return average
++	printf("The average is: %f\n", (x+y)/2);
++	//test prime numbers
++	int test = prime(x);
++	if(test==0) {
++		printf("%d is not prime", x);
++	}
++	else{
++		printf("%d is prime", x);
++	}
++	int test2 = prime(y);
++	if(test2==0) {
++		printf("%d is not primt", y);
++	}
++	else{
++		printf("%d is prime", y);
++	}
++	int test3 = gcd(x,y);
++	if(test3 == 1) {
++		printf("%d and %d\n are relatively prime", x, y);
++	}
++	else{
++		printf("%d and %d\n are not telatively prime", x, y);
++	}
++}
+-- 
+2.34.1
+
+
+From 93748d0219cca23bf096dba33c9643f65d4fa114 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 17:54:51 -0400
+Subject: [PATCH 05/27] Makefile made
+
+---
+ part1/Makefile | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 part1/Makefile
+
+diff --git a/part1/Makefile b/part1/Makefile
+new file mode 100644
+index 0000000..427c44c
+--- /dev/null
++++ b/part1/Makefile
+@@ -0,0 +1,18 @@
++CC = gcc
++CFLAGS = -Wall -std=c17
++LDFLAGS =
++LDLIBS = 
++
++convert: convert.o
++
++convert.o: convert.c
++
++.PHONY clean
++clean:
++	rm -f *.o a.out core convert
++
++.PHONY all
++all:
++	clean convert 
++
++
+-- 
+2.34.1
+
+
+From e84930c25b0b4d23e52fab22d724839b1d10047c Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:19:57 -0400
+Subject: [PATCH 06/27] Added new layers to Makefile
+
+---
+ part1/Makefile | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 427c44c..dc32bf7 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -3,16 +3,17 @@ CFLAGS = -Wall -std=c17
+ LDFLAGS =
+ LDLIBS = 
+ 
+-convert: convert.o
++main: prime.o gcd.o
+ 
+-convert.o: convert.c
++prime.o: prime.c prime.h
++gcd.o: gcd.c gcd.hc
+ 
+ .PHONY clean
+ clean:
+-	rm -f *.o a.out core convert
++	rm -f *.o a.out core main
+ 
+ .PHONY all
+ all:
+-	clean convert 
++	clean main
+ 
+ 
+-- 
+2.34.1
+
+
+From 6c49ffde89e5d632cdc6fbf208716c5119d6a18d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:25:43 -0400
+Subject: [PATCH 07/27] Deleted some extra linking/spaces
+
+---
+ part1/Makefile | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index dc32bf7..bd6d77c 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -1,7 +1,5 @@
+ CC = gcc
+ CFLAGS = -Wall -std=c17
+-LDFLAGS =
+-LDLIBS = 
+ 
+ main: prime.o gcd.o
+ 
+-- 
+2.34.1
+
+
+From 6c99bf0446119c9d22e2601f6ca6a34eea1a848f Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:27:12 -0400
+Subject: [PATCH 08/27] Added : after .PHONY
+
+---
+ part1/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index bd6d77c..393e8fc 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -6,11 +6,11 @@ main: prime.o gcd.o
+ prime.o: prime.c prime.h
+ gcd.o: gcd.c gcd.hc
+ 
+-.PHONY clean
++.PHONY: clean
+ clean:
+ 	rm -f *.o a.out core main
+ 
+-.PHONY all
++.PHONY: all
+ all:
+ 	clean main
+ 
+-- 
+2.34.1
+
+
+From e8458797edc868b3dae04057be75b939b633e759 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:31:27 -0400
+Subject: [PATCH 09/27] fixing errors
+
+---
+ part1/Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 393e8fc..d417490 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -11,7 +11,6 @@ clean:
+ 	rm -f *.o a.out core main
+ 
+ .PHONY: all
+-all:
+-	clean main
++all: clean main
+ 
+ 
+-- 
+2.34.1
+
+
+From be4b4320aba0ce3dda4e36e52594e285d3635bfa Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:32:11 -0400
+Subject: [PATCH 10/27] commiting to fix errors
+
+---
+ part1/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/part1/main.c b/part1/main.c
+index e74c3c5..ff98988 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -2,7 +2,9 @@
+ #include "prime.h"
+ #include "gcd.h"
+ int main() {
+-	scanf("%d", "%d", x, y)
++	int x;
++	int y;
++	scanf("%d", "%d", x, y);
+ 	//return average
+ 	printf("The average is: %f\n", (x+y)/2);
+ 	//test prime numbers
+-- 
+2.34.1
+
+
+From 5b6cbc27f5fbbfe69d05c83c773bca03a60fa7bb Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:33:04 -0400
+Subject: [PATCH 11/27] fixing errors
+
+---
+ part1/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index d417490..3b9742f 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -4,7 +4,7 @@ CFLAGS = -Wall -std=c17
+ main: prime.o gcd.o
+ 
+ prime.o: prime.c prime.h
+-gcd.o: gcd.c gcd.hc
++gcd.o: gcd.c gcd.h
+ 
+ .PHONY: clean
+ clean:
+-- 
+2.34.1
+
+
+From 6e1191de8ea29fa9e5610d23b62434a6b7aff05e Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 18:33:58 -0400
+Subject: [PATCH 12/27] added space needed
+
+---
+ part1/gcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/gcd.c b/part1/gcd.c
+index f943a87..be25676 100644
+--- a/part1/gcd.c
++++ b/part1/gcd.c
+@@ -1,6 +1,6 @@
+ #include "gcd.h"
+ 
+-int gcd(intx, int y){
++int gcd(int x, int y){
+ 	if(x!=0 && y!=0){
+ 		while (y>0) {
+ 			int remain = x%y;
+-- 
+2.34.1
+
+
+From 9d149690d38a591bfc5770a703869b264fbea294 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 19:48:58 -0400
+Subject: [PATCH 13/27] add return statement outside loop for syntax
+
+---
+ part1/gcd.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/part1/gcd.c b/part1/gcd.c
+index be25676..ad4a727 100644
+--- a/part1/gcd.c
++++ b/part1/gcd.c
+@@ -14,4 +14,5 @@ int gcd(int x, int y){
+ 			return x;
+ 		}
+ 	}
++	return 0;
+ }
+-- 
+2.34.1
+
+
+From 350e9f0f14efe95c9a9e8d12046fa076a41a2351 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 19:52:13 -0400
+Subject: [PATCH 14/27] fixed variable avg and added & in front of x and y
+
+---
+ part1/main.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/part1/main.c b/part1/main.c
+index ff98988..b958f0d 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -2,11 +2,11 @@
+ #include "prime.h"
+ #include "gcd.h"
+ int main() {
+-	int x;
+-	int y;
+-	scanf("%d", "%d", x, y);
++
++	scanf("%d", "%d", &x, &y);
+ 	//return average
+-	printf("The average is: %f\n", (x+y)/2);
++	float avg = (x+y)/2;
++	printf("The average is: %f\n", avg);
+ 	//test prime numbers
+ 	int test = prime(x);
+ 	if(test==0) {
+-- 
+2.34.1
+
+
+From 3d710fd23681927146e39b576889f313e6977e96 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 19:54:44 -0400
+Subject: [PATCH 15/27] added x and y declarations to main.c
+
+---
+ part1/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/part1/main.c b/part1/main.c
+index b958f0d..b8c6b8c 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -2,6 +2,8 @@
+ #include "prime.h"
+ #include "gcd.h"
+ int main() {
++	int x;
++	int y;
+ 
+ 	scanf("%d", "%d", &x, &y);
+ 	//return average
+-- 
+2.34.1
+
+
+From 65989921bc3d97414c7002b91834007298b33d18 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:05:52 -0400
+Subject: [PATCH 16/27] added prompt for 2 integers
+
+---
+ part1/main.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/part1/main.c b/part1/main.c
+index b8c6b8c..9b99eb4 100644
+--- a/part1/main.c
++++ b/part1/main.c
+@@ -4,31 +4,32 @@
+ int main() {
+ 	int x;
+ 	int y;
++	printf("Enter two integers: ");
+ 
+-	scanf("%d", "%d", &x, &y);
++	scanf("%d %d", &x, &y);
+ 	//return average
+-	float avg = (x+y)/2;
++	float avg =(float) (x+y)/2;
+ 	printf("The average is: %f\n", avg);
+ 	//test prime numbers
+ 	int test = prime(x);
+ 	if(test==0) {
+-		printf("%d is not prime", x);
++		printf("%d is not prime\n", x);
+ 	}
+ 	else{
+-		printf("%d is prime", x);
++		printf("%d is prime\n", x);
+ 	}
+ 	int test2 = prime(y);
+ 	if(test2==0) {
+-		printf("%d is not primt", y);
++		printf("%d is not prime\n", y);
+ 	}
+ 	else{
+-		printf("%d is prime", y);
++		printf("%d is prime\n", y);
+ 	}
+ 	int test3 = gcd(x,y);
+ 	if(test3 == 1) {
+-		printf("%d and %d\n are relatively prime", x, y);
++		printf("%d and %d are relatively prime\n", x, y);
+ 	}
+ 	else{
+-		printf("%d and %d\n are not telatively prime", x, y);
++		printf("%d and %d are not relatively prime\n", x, y);
+ 	}
+ }
+-- 
+2.34.1
+
+
+From 27ec0dd10b5a0166855978bcf3ff91637b6dc614 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:38:19 -0400
+Subject: [PATCH 17/27] First rendition of convert.c program writing
+
+---
+ part2/convert.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 part2/convert.c
+
+diff --git a/part2/convert.c b/part2/convert.c
+new file mode 100644
+index 0000000..ed43108
+--- /dev/null
++++ b/part2/convert.c
+@@ -0,0 +1,25 @@
++#include <stdio.h>
++
++int convert(){
++	int x;
++	scanf("%d", &x);
++	printf("printf-ing -1 as %%d: %d\n", x);
++       	printf("printf-ing -1 as %%u: %u\n", x);
++       	printf("printf-ing -1 as %%x: %x\n", x);
++	char decToBinary[32];
++	for(i=0; i<32; i++) {
++		if(x & (1<<i)) {
++		     decToBinary[31 - i] = '1';
++		} else {
++			decToBinary[31 - i] = '0';
++		}
++	}
++	int tracking = 1;
++	for(int k =0; k<32; k++){
++		printf("%c", decToBinary[k]);
++		if(tracking % 4 ==0) {
++			printf(" ");
++		}
++	}
++}	
++
+-- 
+2.34.1
+
+
+From 93da52c75e11b19c6d3da00858544a5b946d0825 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:41:51 -0400
+Subject: [PATCH 18/27] created Makefile for part2
+
+---
+ part2/Makefile | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+ create mode 100644 part2/Makefile
+
+diff --git a/part2/Makefile b/part2/Makefile
+new file mode 100644
+index 0000000..515da47
+--- /dev/null
++++ b/part2/Makefile
+@@ -0,0 +1,14 @@
++CC = gcc
++CFLAGS = -Wall -std=c17
++
++convert: convert.o
++
++convert.o: convert.c
++
++.PHONY: clean
++clean:
++	rm -f *.o a.out core convert
++
++.PHONY: all
++all:
++	clean convert
+-- 
+2.34.1
+
+
+From 23663d05c214ad57e9c83f7ba1c92d7c50dc425d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:52:29 -0400
+Subject: [PATCH 19/27] fixing syntax and errors
+
+---
+ part2/convert.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index ed43108..cd84831 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -3,11 +3,16 @@
+ int convert(){
+ 	int x;
+ 	scanf("%d", &x);
+-	printf("printf-ing -1 as %%d: %d\n", x);
+-       	printf("printf-ing -1 as %%u: %u\n", x);
+-       	printf("printf-ing -1 as %%x: %x\n", x);
++
++	printf("signed dec: %%d: %d\n", x);
++
++       	printf("unsigned dec: %%u: %u\n", x);
++
++       	printf("hex: %%x: %x\n", x);
++	
++	printf("binary: ");
+ 	char decToBinary[32];
+-	for(i=0; i<32; i++) {
++	for(int i=0; i<32; i++) {
+ 		if(x & (1<<i)) {
+ 		     decToBinary[31 - i] = '1';
+ 		} else {
+@@ -21,5 +26,6 @@ int convert(){
+ 			printf(" ");
+ 		}
+ 	}
++	return 0;
+ }	
+ 
+-- 
+2.34.1
+
+
+From 6c2d99b756b13b5d4d4e595014c3aebbfb47b399 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:56:40 -0400
+Subject: [PATCH 20/27] added tabs for alignment
+
+---
+ part2/convert.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index cd84831..6c22454 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -4,13 +4,13 @@ int convert(){
+ 	int x;
+ 	scanf("%d", &x);
+ 
+-	printf("signed dec: %%d: %d\n", x);
++	printf("signed dec:	%%d: %d\n", x);
+ 
+-       	printf("unsigned dec: %%u: %u\n", x);
++       	printf("unsigned dec: 	%%u: %u\n", x);
+ 
+-       	printf("hex: %%x: %x\n", x);
++       	printf("hex: %%x: 	%x\n", x);
+ 	
+-	printf("binary: ");
++	printf("binary:		");
+ 	char decToBinary[32];
+ 	for(int i=0; i<32; i++) {
+ 		if(x & (1<<i)) {
+-- 
+2.34.1
+
+
+From ad9fe0f9a1a513eb14794251b1e9c3befe67e2ad Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 20:58:40 -0400
+Subject: [PATCH 21/27] changed to main method within convert
+
+---
+ part2/convert.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index 6c22454..aad155d 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -1,6 +1,6 @@
+ #include <stdio.h>
+ 
+-int convert(){
++int main(){
+ 	int x;
+ 	scanf("%d", &x);
+ 
+-- 
+2.34.1
+
+
+From 8c227b5e142291dd03333991fd6565a5defb7976 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:02:41 -0400
+Subject: [PATCH 22/27] fixed spacing and print out syntax
+
+---
+ part2/convert.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index aad155d..78e520f 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -4,11 +4,11 @@ int main(){
+ 	int x;
+ 	scanf("%d", &x);
+ 
+-	printf("signed dec:	%%d: %d\n", x);
++	printf("signed dec:	%d\n", x);
+ 
+-       	printf("unsigned dec: 	%%u: %u\n", x);
++       	printf("unsigned dec:	%u\n", x);
+ 
+-       	printf("hex: %%x: 	%x\n", x);
++       	printf("hex:		%x\n", x);
+ 	
+ 	printf("binary:		");
+ 	char decToBinary[32];
+@@ -22,6 +22,7 @@ int main(){
+ 	int tracking = 1;
+ 	for(int k =0; k<32; k++){
+ 		printf("%c", decToBinary[k]);
++		tracking++;
+ 		if(tracking % 4 ==0) {
+ 			printf(" ");
+ 		}
+-- 
+2.34.1
+
+
+From 40c95e24070f6ea1b808993fef1a479317d69f1a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:07:12 -0400
+Subject: [PATCH 23/27] all tests appear to run as expected
+
+---
+ part2/convert.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index 78e520f..e971593 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -19,7 +19,7 @@ int main(){
+ 			decToBinary[31 - i] = '0';
+ 		}
+ 	}
+-	int tracking = 1;
++	int tracking =0;
+ 	for(int k =0; k<32; k++){
+ 		printf("%c", decToBinary[k]);
+ 		tracking++;
+@@ -27,6 +27,7 @@ int main(){
+ 			printf(" ");
+ 		}
+ 	}
++	printf("\n");
+ 	return 0;
+ }	
+ 
+-- 
+2.34.1
+
+
+From 0bfa39e2d6ad294823da81435991e0589da774b6 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:11:21 -0400
+Subject: [PATCH 24/27] added case for 1
+
+---
+ part1/prime.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/part1/prime.c b/part1/prime.c
+index 59a9387..9af5675 100644
+--- a/part1/prime.c
++++ b/part1/prime.c
+@@ -1,5 +1,8 @@
+ #include "prime.h"
+ int prime(int x){
++	if(x==1){
++		return 0;
++	}
+ 	int y = 1;
+ 	for (int i =2; i<= x/2; i++){
+ 		//if divisible by any number break out of loop, we know not prime
+-- 
+2.34.1
+
+
+From 5bf80fafb07dce16368257a05b735cbcfef771e6 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:15:40 -0400
+Subject: [PATCH 25/27] fixed spacing
+
+---
+ part2/convert.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/part2/convert.c b/part2/convert.c
+index e971593..bc18664 100644
+--- a/part2/convert.c
++++ b/part2/convert.c
+@@ -4,13 +4,13 @@ int main(){
+ 	int x;
+ 	scanf("%d", &x);
+ 
+-	printf("signed dec:	%d\n", x);
++	printf("signed dec:   %d\n", x);
+ 
+-       	printf("unsigned dec:	%u\n", x);
++       	printf("unsigned dec: %u\n", x);
+ 
+-       	printf("hex:		%x\n", x);
++       	printf("hex:          %x\n", x);
+ 	
+-	printf("binary:		");
++	printf("binary:       ");
+ 	char decToBinary[32];
+ 	for(int i=0; i<32; i++) {
+ 		if(x & (1<<i)) {
+-- 
+2.34.1
+
+
+From 63e87c3f614688fbf7bca13878516c2e8463276d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:38:33 -0400
+Subject: [PATCH 26/27] Edited README file
+
+---
+ README.txt | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/README.txt b/README.txt
+index fd2e560..58b7961 100644
+--- a/README.txt
++++ b/README.txt
+@@ -1,10 +1,10 @@
+ This file should contain:
+ 
+-  - your name
+-  - your UNI
+-  - lab assignment number
+-  - answers to academic honesty questions
+-  - description for each part
++  - Jordyn Jaffe
++  - jtj2127
++  - lab 1
++  - answers to academic honesty questions (see below)
++  - My code works exactly as specified in the lab. No further functionalities were implemented, and none of the code is non-working code.
+   
+ The description should indicate whether your solution for the part is
+ working or not.  You may also want to include anything else you would
+@@ -15,8 +15,15 @@ implemented or how you tried to fix your non-working code.
+ 
+ Please answer the academic honesty questions.
+ 
+-
+-
++[1][ANSWER] No, I would not constitute this as cheating as the tutor is NOT providing you explicitly with code. However, the tutor should not point directly at the wrong code, as I would consider this as cheating. As long as the tutor is not being explicit, I would not consider this cheating.
++[2][ANSWER] Yes, I would constitute this as cheating because you are receiving explicit code with correct answers. This is cheat code.
++[3][ANSWER] Yes this constitutes as cheating as you have access to the answers that are not yours within your possesion.
++[4][a][ANSWER] No, asking for clarification on topics from lecture do not constitute as cheating, as this is asking for help with conceptual material unrelated to lab answers/clarifications. 
++[4][b] [ANSWER] No, If you are explaining a conceptual idea of their code, I would not consider this cheating because you are not exchanging any code. However, if any code is exchanged or copied in this process, I would consider this cheating.
++[4][c][ANSWER]No, If no code is exchanged, I would not consider this cheating. Asking for an overall idea of the lab without code is something I would consider conceptual and not explicit.
++[5][ANSWER] No, this is not cheating TO A CERTAIN DEGREE! If you are directly copying, this IS cheating. If you are using it as a skeleton situation and CITE YOUR SOURCE, then this is not necessarily cheating. However, this is a very fine line and overall would not encourage in any light, but if you do use Google, yu must cite it or this is cheating.
++[6][ANSWER] No, this is not cheating. Looking up errors helps you debug and as long as it does not explicitly fix your code, it is okay to look up an error number/ error pop up as sometimes they are not explicit and do not provide the actual nature of the error. 
++[7][ANSWER] Yes, copying code and solutions of any amount IS cheating, not matter how it is used/condensed.  
+ --------------------------------------------------------------------------
+ 
+ Part 0
+@@ -25,12 +32,12 @@ Part 0
+ Please write your answers after [ANSWER] on the same line.  Our auto-grading
+ script will look for lines that contain [ANSWER].
+ 
+-[0.1][ANSWER] 
++[0.1][ANSWER] git init
+ 
+-[0.2][ANSWER] 
++[0.2][ANSWER] git clone
+ 
+-[0.3][ANSWER] 
++[0.3][ANSWER] git checkout -- filename
+ 
+-[0.4][ANSWER] 
++[0.4][ANSWER] git reset HEAD filename
+ 
+ 
+-- 
+2.34.1
+
+
+From 0e9e327fdd65cb3715f2906aee9067bd251c3aeb Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 24 Sep 2023 21:43:55 -0400
+Subject: [PATCH 27/27] edits to clean
+
+---
+ part2/Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/part2/Makefile b/part2/Makefile
+index 515da47..599843c 100644
+--- a/part2/Makefile
++++ b/part2/Makefile
+@@ -10,5 +10,4 @@ clean:
+ 	rm -f *.o a.out core convert
+ 
+ .PHONY: all
+-all:
+-	clean convert
++all:clean convert
+-- 
+2.34.1
+
