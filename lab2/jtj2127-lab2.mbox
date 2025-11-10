@@ -1,0 +1,726 @@
+From 76a623791ce9fdc2d3bc19e01c32f2eca8036d34 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:20:25 -0400
+Subject: [PATCH 01/16] created entire part 1, main and sorting functions
+
+---
+ part1/isort.c | 128 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 128 insertions(+)
+ create mode 100644 part1/isort.c
+
+diff --git a/part1/isort.c b/part1/isort.c
+new file mode 100644
+index 0000000..b3f20a7
+--- /dev/null
++++ b/part1/isort.c
+@@ -0,0 +1,128 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <ctype.h>
++
++
++//my sorting function
++//using bubbleSort as it's logically easiest to follow
++//using source code from geeksforgeeks.org as starting point
++
++//bubbleSort ascendning function
++void bubbleSortAscend(int *arr, int size){
++	int temp;
++	int swapped;
++	for(int i =0; i<size-1; i++){
++		swapped=0;
++		for(int j = 0; j< size - i - 1; j++) {
++			if(arr[j] > arr[j+1]) {
++				temp = arr[j];
++				arr[j] = arr[j+1];
++				arr[j+1] = temp;
++				swapped = 1;
++			}
++		}
++
++		if(swapped == 0) {
++			break;
++		}
++	}
++}
++
++void bubbleSortDescend(int *arr, int size){
++	int temp;
++	int swapped;
++	for(int i = 0; i<size-1; i++){
++		swapped = 0;
++		for(int j=0; j<size - i -1; j++){
++			if(arr[j] < arr[j+1]){
++				temp = arr[j];
++				arr[j] = arr[j+1];
++				arr[j+1] = temp;
++				swapped = 1;
++			}
++		}
++		if(swapped == 0) {
++			break;
++		}
++	}
++}
++
++void sort_integer_array(int *begin, int *end, int ascending) {
++	if(ascending == 1) {
++		bubbleSortAscend(begin, end-begin);
++	}
++	else{
++		bubbleSortDescend(begin, end-begin);
++	}
++}
++
++
++
++int main{
++//read integers from user for number of integers in array
++	 int x;
++	 printf("Enter size of array: ");
++	 scanf("%%d",&x);
++
++	 
++//make 3 arrays using malloc
++	int *original = (int *)malloc(size * sizeof(int));
++
++	int *ascending = (int *)malloc(size * sizeof(int));
++
++	int *descending = (int *)malloc(size * sizeof(int));
++//check return value of malloc(), if NULL print an error and quit
++	if(original == NULL || ascending == NULL || descendning == NULL){
++		perror("malloc returned NULL");
++		exit(1);
++	}
++ //fill array with random integers 
++ 	srandom((time(NULL)));
++//loop through size of array and fill with random, max value of random int = 100 
++	for(int i = 0; i<x; i++){
++		original[i] = random() %100;
++	} 
++
++ //make copies of original array
++ 	for(int i = 0; i<x; i++) {
++		descending[i] = original[i];
++		ascending[i] = original[i];
++	}
++ 
++//sort ascendning and descendning arrays
++	sort_integer_array(ascending, ascending+x, 1);
++	sort_integer_array(descending, descending+x, 0);
++
++//print original array
++	printf("original: ");
++	for(int i =0; i<x; i++){
++		printf("%d", original[i]);
++	}
++	print("\n");
++//deallocate space of original
++	free(original);
++
++//print ascendning array
++	printf("ascending: ");
++	for(int i=0; i<x; i++){
++		printf("%d", ascending[i]);
++	}
++	print("\n");
++//deallocate space of ascending
++	free(ascending);
++
++//print descending array
++	printf("descending: ");
++	for(int i=0;i<x; i++) {
++		printf("%d", descending[i]);
++	}
++	printf("\n");
++//deallocate space of descending
++	free(descending);
++
++	//return 0 to end main function
++	return 0;
++
++       	
++} 
+-- 
+2.34.1
+
+
+From 9a9231a4d5c0c9556a3470b34f461b4eea0d8bfd Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:32:18 -0400
+Subject: [PATCH 02/16] created Makefile for part 1
+
+---
+ part1/Makefile | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 part1/Makefile
+
+diff --git a/part1/Makefile b/part1/Makefile
+new file mode 100644
+index 0000000..8ec03dc
+--- /dev/null
++++ b/part1/Makefile
+@@ -0,0 +1,22 @@
++
++
++
++CC = gcc
++
++
++
++CFLAGS = -g -Wall -Wpedantic -std=c17
++
++
++
++isort: isort.o
++
++isort.o: isort.c
++
++
++.PHONY:clean
++clean:
++	rm -f *.o a.out core isort
++
++.PHONY: all
++all: clean isort
+-- 
+2.34.1
+
+
+From 423252a1b407549151f1c5d5b6b0424c2fdd8dfd Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:34:58 -0400
+Subject: [PATCH 03/16] fixed error by adding () after main
+
+---
+ part1/isort.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/isort.c b/part1/isort.c
+index b3f20a7..6b8bbb9 100644
+--- a/part1/isort.c
++++ b/part1/isort.c
+@@ -59,7 +59,7 @@ void sort_integer_array(int *begin, int *end, int ascending) {
+ 
+ 
+ 
+-int main{
++int main(){
+ //read integers from user for number of integers in array
+ 	 int x;
+ 	 printf("Enter size of array: ");
+-- 
+2.34.1
+
+
+From 275fe16b203bbdadd12991ae411b17f4079d86b7 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:39:31 -0400
+Subject: [PATCH 04/16] fixed errors thrown after first test
+
+---
+ part1/isort.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/part1/isort.c b/part1/isort.c
+index 6b8bbb9..0b7ba8f 100644
+--- a/part1/isort.c
++++ b/part1/isort.c
+@@ -63,17 +63,17 @@ int main(){
+ //read integers from user for number of integers in array
+ 	 int x;
+ 	 printf("Enter size of array: ");
+-	 scanf("%%d",&x);
++	 scanf("%d",&x);
+ 
+ 	 
+ //make 3 arrays using malloc
+-	int *original = (int *)malloc(size * sizeof(int));
++	int *original = (int *)malloc(x * sizeof(int));
+ 
+-	int *ascending = (int *)malloc(size * sizeof(int));
++	int *ascending = (int *)malloc(x * sizeof(int));
+ 
+-	int *descending = (int *)malloc(size * sizeof(int));
++	int *descending = (int *)malloc(x * sizeof(int));
+ //check return value of malloc(), if NULL print an error and quit
+-	if(original == NULL || ascending == NULL || descendning == NULL){
++	if(original == NULL || ascending == NULL || descending == NULL){
+ 		perror("malloc returned NULL");
+ 		exit(1);
+ 	}
+@@ -99,7 +99,7 @@ int main(){
+ 	for(int i =0; i<x; i++){
+ 		printf("%d", original[i]);
+ 	}
+-	print("\n");
++	printf("\n");
+ //deallocate space of original
+ 	free(original);
+ 
+-- 
+2.34.1
+
+
+From f66d10d6b4d316f8ebba9d54ef15ab563fd61bcd Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:42:14 -0400
+Subject: [PATCH 05/16] added f after print for correct syntax to debug
+
+---
+ part1/isort.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/isort.c b/part1/isort.c
+index 0b7ba8f..b12ba11 100644
+--- a/part1/isort.c
++++ b/part1/isort.c
+@@ -108,7 +108,7 @@ int main(){
+ 	for(int i=0; i<x; i++){
+ 		printf("%d", ascending[i]);
+ 	}
+-	print("\n");
++	printf("\n");
+ //deallocate space of ascending
+ 	free(ascending);
+ 
+-- 
+2.34.1
+
+
+From 1def84da68e0df26b5477604950ffab036492f35 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:44:51 -0400
+Subject: [PATCH 06/16] added #include <time.h> to fix time error
+
+---
+ part1/isort.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/part1/isort.c b/part1/isort.c
+index b12ba11..c024404 100644
+--- a/part1/isort.c
++++ b/part1/isort.c
+@@ -2,6 +2,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <time.h>
+ 
+ 
+ //my sorting function
+-- 
+2.34.1
+
+
+From 0540491bf30c529a63598f1790ea4a8fb7100bc5 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:46:00 -0400
+Subject: [PATCH 07/16] fixed the flags in my Makefile to debug errors
+
+---
+ part1/Makefile | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 8ec03dc..e44564c 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -5,9 +5,7 @@ CC = gcc
+ 
+ 
+ 
+-CFLAGS = -g -Wall -Wpedantic -std=c17
+-
+-
++CFLAGS = -g -Wall 
+ 
+ isort: isort.o
+ 
+-- 
+2.34.1
+
+
+From ff8e26af0e0bd95b43f6f6208cc3bc21ec0094d4 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 12:48:45 -0400
+Subject: [PATCH 08/16] added spaces after "%d " to fix syntax of array when
+ printed
+
+---
+ part1/isort.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/part1/isort.c b/part1/isort.c
+index c024404..d90b303 100644
+--- a/part1/isort.c
++++ b/part1/isort.c
+@@ -98,7 +98,7 @@ int main(){
+ //print original array
+ 	printf("original: ");
+ 	for(int i =0; i<x; i++){
+-		printf("%d", original[i]);
++		printf("%d ", original[i]);
+ 	}
+ 	printf("\n");
+ //deallocate space of original
+@@ -107,7 +107,7 @@ int main(){
+ //print ascendning array
+ 	printf("ascending: ");
+ 	for(int i=0; i<x; i++){
+-		printf("%d", ascending[i]);
++		printf("%d ", ascending[i]);
+ 	}
+ 	printf("\n");
+ //deallocate space of ascending
+@@ -116,7 +116,7 @@ int main(){
+ //print descending array
+ 	printf("descending: ");
+ 	for(int i=0;i<x; i++) {
+-		printf("%d", descending[i]);
++		printf("%d ", descending[i]);
+ 	}
+ 	printf("\n");
+ //deallocate space of descending
+-- 
+2.34.1
+
+
+From e7eed07a78ad08f6ca77bfbd95139c71b5629434 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 15:13:32 -0400
+Subject: [PATCH 09/16] first patch before testing of twecho, created both
+ functions
+
+---
+ part2/twecho.c | 51 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
+
+diff --git a/part2/twecho.c b/part2/twecho.c
+index c70e975..d591b19 100644
+--- a/part2/twecho.c
++++ b/part2/twecho.c
+@@ -9,11 +9,62 @@
+ 
+ static char **duplicateArgs(int argc, char **argv)
+ {
++	//making char** of copied array, size of argc+1 because end should be NULL and starts at index of 1, not 0 because it reads Twecho at the 0 index thus there are argc+1 amount of things that need to be held
++	char **copiedArgs = (char **)malloc((argc+1) * sizeof(char *));
++
++	//argv[argc] is NULL pointer	
++	copiedArgs[argc] = NULL;
++
++	//check return value of malloc(), if null print error and exit
++	if(copiedArgs == NULL) {
++		 perror("malloc returned NULL");
++		 exit(1);
++	}
++
++	//loop through each element up to but not including argc, because argc is NULL (looping through second array on diagram)
++	for(int i=0; i<argc; i++) {
++		//at each index of second array, need to find length of string it points to
++		int length = strlen(argv[i]);
++
++		//at each index of copiedArgs, need to create another pointer poitining to an array the size of the string at that index, we do not yet have the string itself, just the size
++		copiedArgs[i] = (char *)malloc((length+1) * sizeof(char));
++
++		//check return value of malloc(), if null print error and exit
++		if(copiedArgs[i] == NULL) {
++			perror("malloc returned NULL");
++			exit(1);
++		}
++	
++	//working horizontally, and then larger for loop increments down to next spot
++	//strcpy strings from original array to copied, and toupper() them, run until you hit NULL pointer
++		char *s = argv[i];
++		char *t = copiedArgs[i];
++		while(*s != '\0') {
++			*t = toupper(*s);
++			s++;
++			t++;
++		}
++		//incremented to last spot, but loop doesn't run again so we must make last pointer to NULL of the string
++		*t = '\0';
++	}
++
++	//return copiedArgs because that's our type of the function, char **
++	return copiedArgs;	
++	
++	
+ 
+ }
+ 
+ static void freeDuplicatedArgs(char **copy)
+ {
++	//free everything malloc()ed first: free all individual strings, then free overall array
++	//free individual strings, running until you hit the \0 (null) of the individual string, signifies end of string
++	for(int i =0; copiedArgs[i] != NULL; i++){
++		free(copiedArgs[i]);
++	}
++
++	//free overall array
++	free(copiedArgs);
+ 
+ }
+ 
+-- 
+2.34.1
+
+
+From 4d37cc780f138459b213e8a48edff48ed45c5742 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 15:15:59 -0400
+Subject: [PATCH 10/16] created Makefile for part2
+
+---
+ part2/Makefile | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 part2/Makefile
+
+diff --git a/part2/Makefile b/part2/Makefile
+new file mode 100644
+index 0000000..ecd26c3
+--- /dev/null
++++ b/part2/Makefile
+@@ -0,0 +1,20 @@
++
++
++
++CC = gcc
++
++
++CFLAGS = -g -Wall
++
++
++
++twecho: twecho.o
++
++twecho.o: twecho.c
++
++.PHONY: clean
++clean:
++	rm -f *.o a.out core myprogram 
++
++.PHONY: all
++all: clean twecho
+-- 
+2.34.1
+
+
+From d0d17f43794112e15b72c08956c3e7b5c4c21f98 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 15:18:47 -0400
+Subject: [PATCH 11/16] fixing error using syntax of **copy instead of
+ copiedArgs from above
+
+---
+ part2/twecho.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/part2/twecho.c b/part2/twecho.c
+index d591b19..da79628 100644
+--- a/part2/twecho.c
++++ b/part2/twecho.c
+@@ -59,12 +59,12 @@ static void freeDuplicatedArgs(char **copy)
+ {
+ 	//free everything malloc()ed first: free all individual strings, then free overall array
+ 	//free individual strings, running until you hit the \0 (null) of the individual string, signifies end of string
+-	for(int i =0; copiedArgs[i] != NULL; i++){
+-		free(copiedArgs[i]);
++	for(int i =0; copy[i] != NULL; i++){
++		free(copy[i]);
+ 	}
+ 
+ 	//free overall array
+-	free(copiedArgs);
++	free(copyArgs);
+ 
+ }
+ 
+-- 
+2.34.1
+
+
+From c086df777812cda211885c5db918cb11fdbc6e73 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 15:19:43 -0400
+Subject: [PATCH 12/16] fixing copy syntax in free function
+
+---
+ part2/twecho.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/twecho.c b/part2/twecho.c
+index da79628..3b1cce7 100644
+--- a/part2/twecho.c
++++ b/part2/twecho.c
+@@ -64,7 +64,7 @@ static void freeDuplicatedArgs(char **copy)
+ 	}
+ 
+ 	//free overall array
+-	free(copyArgs);
++	free(copy);
+ 
+ }
+ 
+-- 
+2.34.1
+
+
+From 9693bd98de582d2662dd1606676e1ebcf2c04bc2 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 16:13:12 -0400
+Subject: [PATCH 13/16] wrote README file
+
+---
+ README.txt | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/README.txt b/README.txt
+index 66dfd3e..5751391 100644
+--- a/README.txt
++++ b/README.txt
+@@ -1,9 +1,14 @@
+ This file should contain:
+ 
+-  - your name
+-  - your UNI
+-  - lab assignment number
+-  - description for each part
++  - Jordyn Jaffe
++  - jtj2127
++  - lab 2
++
++Descriptions:
++
++part1: My program isort and accompanying functions in part 1 work as expected, with no memory leaks. For my sort method, I used bubble sort, and used code I found on geeksforgeeks as a starting point for my bubble sort ascending function and descending function. 
++
++part2: My program twecho and accompanying functions in part 2 work as expected, with no memory leaks. I used the lecture notes on strcopy as a basis for copying over the string characters into the upper case copiedArgs. 
+   
+ The description should indicate whether your solution for the part is
+ working or not.  You may also want to include anything else you would
+-- 
+2.34.1
+
+
+From d95771d35b280572f8f370fc683fbe02b308c4b9 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 16:24:01 -0400
+Subject: [PATCH 14/16] valgrind parts 1 and 2 into README file
+
+---
+ README.txt | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
+
+diff --git a/README.txt b/README.txt
+index 5751391..a1e9858 100644
+--- a/README.txt
++++ b/README.txt
+@@ -10,7 +10,35 @@ part1: My program isort and accompanying functions in part 1 work as expected, w
+ 
+ part2: My program twecho and accompanying functions in part 2 work as expected, with no memory leaks. I used the lecture notes on strcopy as a basis for copying over the string characters into the upper case copiedArgs. 
+   
+-The description should indicate whether your solution for the part is
+-working or not.  You may also want to include anything else you would
+-like to communicate to the grader such as extra functionalities you
+-implemented or how you tried to fix your non-working code.
++valgrind: ./isort: No such file or directory
++==1730123== Memcheck, a memory error detector
++==1730123== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==1730123== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==1730123== Command: ./isort
++==1730123== 
++Enter size of array: original: 71 56 13 78 13 23 12 95 76 95 
++ascending: 12 13 13 23 56 71 76 78 95 95 
++descending: 95 95 78 76 71 56 23 13 13 12 
++==1730123== 
++==1730123== HEAP SUMMARY:
++==1730123==     in use at exit: 0 bytes in 0 blocks
++==1730123==   total heap usage: 5 allocs, 5 frees, 2,680 bytes allocated
++==1730123== 
++==1730123== All heap blocks were freed -- no leaks are possible
++==1730123== 
++==1730123== For lists of detected and suppressed errors, rerun with: -s
++==1730123== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==1732306== Memcheck, a memory error detector
++==1732306== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==1732306== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==1732306== Command: ./twecho
++==1732306== 
++==1732306== 
++==1732306== HEAP SUMMARY:
++==1732306==     in use at exit: 0 bytes in 0 blocks
++==1732306==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
++==1732306== 
++==1732306== All heap blocks were freed -- no leaks are possible
++==1732306== 
++==1732306== For lists of detected and suppressed errors, rerun with: -s
++==1732306== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+-- 
+2.34.1
+
+
+From 2861e53f0b7d2d364096dd0e4a7a0f8199dbc5c4 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 21:08:30 -0400
+Subject: [PATCH 15/16] additions to README file
+
+---
+ README.txt | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/README.txt b/README.txt
+index a1e9858..f2df3cb 100644
+--- a/README.txt
++++ b/README.txt
+@@ -42,3 +42,20 @@ descending: 95 95 78 76 71 56 23 13 13 12
+ ==1732306== 
+ ==1732306== For lists of detected and suppressed errors, rerun with: -s
+ ==1732306== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==2085989== Memcheck, a memory error detector
++==2085989== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==2085989== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==2085989== Command: ./twecho
++==2085989== 
++==2085989== 
++==2085989== HEAP SUMMARY:
++==2085989==     in use at exit: 0 bytes in 0 blocks
++==2085989==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
++==2085989== 
++==2085989== All heap blocks were freed -- no leaks are possible
++==2085989== 
++==2085989== For lists of detected and suppressed errors, rerun with: -s
++==2085989== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++Enter size of array: original: 71 16 82 12 91 
++ascending: 12 16 71 82 91 
++descending: 91 82 71 16 12 
+-- 
+2.34.1
+
+
+From 57597dc3d522c8802a30026435f78def521a9fc4 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Sun, 8 Oct 2023 21:24:12 -0400
+Subject: [PATCH 16/16] fixed Makefile error
+
+---
+ part2/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/Makefile b/part2/Makefile
+index ecd26c3..60ff1be 100644
+--- a/part2/Makefile
++++ b/part2/Makefile
+@@ -14,7 +14,7 @@ twecho.o: twecho.c
+ 
+ .PHONY: clean
+ clean:
+-	rm -f *.o a.out core myprogram 
++	rm -f *.o a.out core twecho
+ 
+ .PHONY: all
+ all: clean twecho
+-- 
+2.34.1
+
