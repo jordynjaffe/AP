@@ -1,0 +1,1046 @@
+From bc4dbecaaaed654ba1267e0b2eee258daf6bf904 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 14:56:41 -0400
+Subject: [PATCH 01/20] first batch of first 3 functions written
+
+---
+ part1/mylist.c | 80 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 80 insertions(+)
+ create mode 100644 part1/mylist.c
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+new file mode 100644
+index 0000000..387a086
+--- /dev/null
++++ b/part1/mylist.c
+@@ -0,0 +1,80 @@
++#include <stdio.h>
++#include "mylist.h"
++#include <assert.h>
++
++struct Node *addFront(struct List *list, void *data) {
++	//make first node that holds given data pointer and add to front of list
++	//does not manage lifetime of object pointed to by *data
++	//return newly created node on success and NULL on failure
++	//create n1 by allocating the amount of bytes on the heap for a Node
++	//*n1 points to itself, a node holding data
++	struct Node *n1 = (struct Node *)malloc(sizeof(struct Node));
++	//check if there is no data, return NULL
++	if(n1 == NULL) {
++		return NULL;
++	}
++	
++	//assign (*n1).data (component of struct Node) = data (passed through parameter)
++	n1->data = data;
++	n1->next = list->head
++	//next component of Node  n1 = head component of list
++	list->head = n1
++	//^head component of list is n1
++	return n1;
++	}
++
++void traverseList(struct List *list, void (*f)(void *)) {
++	//create traversal pointer
++	//should start at head component of list
++	struct Node *traverse = list->head;
++	//while the traversal is not NULL pointer, continue moving through calling f
++	while(traversal != NULL) {
++		//call f on each data item, access the data component of the current node
++		f(traversal->data);
++		//move traversal to the next component of traversal to continue iterating through list
++		traversal = traversal->next;
++	}
++
++
++}
++
++
++struct Node *findNode(struct List *list, const void *dataSought, int(*compar)(const void *, const void *)) {
++	//traverse the list comparing each data item with dataSought using compar function 
++	//0 = data pointed to by two parameters are equal 
++	//non-zero otherwise
++	//return the furst node containing the macthing data
++	//NULL if not found
++	
++	//create node pointer we will return, should start at the head
++	struct Node *returnNode = list->head
++	//iterate through list comparing, as long as not NULL pointer 
++	
++	while(returnNode !=NULL) {
++		//check if current node's data is equal to dataSought
++		if(compar(returnNode->data, dataSought) == 0) {
++			//if they are equal return that pointer
++			return returnNode;
++		}
++		//if they are not equal, iterate to next node
++		returnNode = returnNode->next;
++	}
++
++	//if loop never returns returnNode, i.e, no match in list, return NULL
++	return NULL;
++
++}
++
++
++	
++
++
++
++
++
++
++
++
++
++}
++
+-- 
+2.34.1
+
+
+From 2043287f6fffcda3b05758a9e7ccd56154325fe1 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 15:24:10 -0400
+Subject: [PATCH 02/20] first batch of next 3 functions
+
+---
+ part1/mylist.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 387a086..9ad55f3 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -67,14 +67,64 @@ struct Node *findNode(struct List *list, const void *dataSought, int(*compar)(co
+ 
+ 
+ 	
++void flipSignDouble(void *data) {
++	//flip the sign of the double value pointed to by 'data' by multiplying it by -1 and putting the result back into the memory location
++	//retrieve pointer to double
++	double *returnVal = (double *)(data);
++	//dereference returnVal to manipulate data at the pointer, set the data at the pointer = -1*returnVal
++	*returnVal = (-1) * (*returnVal);
++}
+ 
+ 
+ 
+ 
+ 
++int comparDouble(const void *data1, const void *data2) {
++	//compare two double values pointed to by the two pointers
++	//return 0 if same value, else return 1
++	
++	//retrieve double pointers from *data1 and *data2
++	const double *a = (const double *)data1;
++	const double *b = (const double *)data2;
+ 
++	//evaluate data that a and b point to by dereferencing
++	if(*a == *b) {
++		return 0;
++	}
++	else {
++		return 1;
++	}
++}
+ 
++void *popFront(struct List *list) {
++	//remove first node from list, deallocate the memory for the node and return the 'data' pointer that was stored in the node
++	//returns NULL if the list is empty
++	if(isEmptyList(list)) {
++		return NULL;
++	}
++	//get current head node
++	struct Node *deleted = list->head;
++	//retrieve current head's data
++	void *data = deleted->data;
++	//get the second node in list, as this will become the head
++	struct Node *newHead = deleted->next;
++	//make this node the new head
++	list->head = newHead;
++	//deallocate the memory for the original head node
++	free(deleted);
++	return data;
++}
++	
+ 
+ 
++void removeAllNodes(struct List *list) {
++	//start at head
++	//use popFront() function
++	//while the list isn't empty, popfront
++	while(!(isEmptyList(list))) {
++		popFront(list);
++	}
+ }
+ 
++
++
+-- 
+2.34.1
+
+
+From 5c781d3a7af1225912790aeff8a2a523216b593a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 15:56:50 -0400
+Subject: [PATCH 03/20] all functions finished, first version no tests have
+ been made yet
+
+---
+ part1/mylist.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 9ad55f3..97ea5eb 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -126,5 +126,73 @@ void removeAllNodes(struct List *list) {
+ 	}
+ }
+ 
++struct Node *addAfter(struct List *list, struct Node *prevNode, void *data) {
++	//create a node that holds the given data pointer and add a node right after the node passed in as prevNode parameter
++	//if prevNode is NULL, this function is equivalent to add Front()
++	//prevNode, if not NULL, is assumed to be one of the nodes in the given list
++	//behavior of fucntion is undefined if prevNode does not belong in the given list
++	//does not manage lifetime of the object pointed to by *data
++	//returns the newly created node on success and NULL on failure
++	
++	//create node
++	struct Node *new = (struct Node *)malloc(sizeof(struct Node));
++	if(prevNode == NULL) {
++		addFront(list, data);
++	}
++
++	//if the list is empty then addAfter also acts as addFront
++	if(isEmptyList(list)) {
++		addFront(list, data);
++	}
++
++	//if new is NULL, return NULL 
++	if(new == NULL) {
++		return NULL;
++	}
++
++	//set new's data to hold the given data pointer
++	new->data = data;
++
++	//insert the node after prevNode
++	
++	//new node's next will be what was previously prevNode's next
++	new->next = prevNode->next;
++
++	//prevNode next now equals the new node
++	prevNode->next = new;
++
++	return new;
++
++}
++
++void reverseList(struct List *list) {
++	//reverse the list by manipulating pointers
++	//DO NOT CALL MALLOC (no addFront or addAfter)
++	//keep track of three consecutive nodes: previous, current, next and move them along in a while loop
++	//at the end prv willl end up pointing to the first element of the reversed list, don't forget to assighn it to list->head
++	struct Node *prv = NULL;
++	struct Node *cur = list->head;
++	struct Node *nxt;
++
++	while(cur) {
++		//get the next node
++		nxt = cur->next;
++
++		//now make cur's next component be the previous node instead of the one originally after it
++		cur->next = prv;
++
++		//iterate pointers
++		prv = cur;
++		cur = nxt;
++	}
++
++	list->head = prv;
++}
++
++
++	
++
++
++
+ 
+ 
+-- 
+2.34.1
+
+
+From 60651d542bb212c7e27e3b0dbcf564d6184acf9f Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:17:18 -0400
+Subject: [PATCH 04/20] fixing first round of errors
+
+---
+ part1/mylist.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 97ea5eb..0901b2c 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -1,4 +1,5 @@
+ #include <stdio.h>
++#include <stdlib.h>
+ #include "mylist.h"
+ #include <assert.h>
+ 
+@@ -16,7 +17,7 @@ struct Node *addFront(struct List *list, void *data) {
+ 	
+ 	//assign (*n1).data (component of struct Node) = data (passed through parameter)
+ 	n1->data = data;
+-	n1->next = list->head
++	n1->next = list->head;
+ 	//next component of Node  n1 = head component of list
+ 	list->head = n1
+ 	//^head component of list is n1
+@@ -28,9 +29,9 @@ void traverseList(struct List *list, void (*f)(void *)) {
+ 	//should start at head component of list
+ 	struct Node *traverse = list->head;
+ 	//while the traversal is not NULL pointer, continue moving through calling f
+-	while(traversal != NULL) {
++	while(traverse != NULL) {
+ 		//call f on each data item, access the data component of the current node
+-		f(traversal->data);
++		f(traverse->data);
+ 		//move traversal to the next component of traversal to continue iterating through list
+ 		traversal = traversal->next;
+ 	}
+@@ -47,7 +48,7 @@ struct Node *findNode(struct List *list, const void *dataSought, int(*compar)(co
+ 	//NULL if not found
+ 	
+ 	//create node pointer we will return, should start at the head
+-	struct Node *returnNode = list->head
++	struct Node *returnNode = list->head;
+ 	//iterate through list comparing, as long as not NULL pointer 
+ 	
+ 	while(returnNode !=NULL) {
+-- 
+2.34.1
+
+
+From b05c38e50d9556a50e77a3f320438c9d4f993e4f Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:19:28 -0400
+Subject: [PATCH 05/20] second round of fixing errors after running make
+
+---
+ part1/mylist.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 0901b2c..7954efe 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -19,10 +19,10 @@ struct Node *addFront(struct List *list, void *data) {
+ 	n1->data = data;
+ 	n1->next = list->head;
+ 	//next component of Node  n1 = head component of list
+-	list->head = n1
++	list->head = n1;
+ 	//^head component of list is n1
+ 	return n1;
+-	}
++}
+ 
+ void traverseList(struct List *list, void (*f)(void *)) {
+ 	//create traversal pointer
+@@ -33,7 +33,7 @@ void traverseList(struct List *list, void (*f)(void *)) {
+ 		//call f on each data item, access the data component of the current node
+ 		f(traverse->data);
+ 		//move traversal to the next component of traversal to continue iterating through list
+-		traversal = traversal->next;
++		traverse = traverse->next;
+ 	}
+ 
+ 
+-- 
+2.34.1
+
+
+From 9bfa84b04ac3deedd0d4503b6fbaecea33bb2cdb Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:37:54 -0400
+Subject: [PATCH 06/20] fixed compareDouble header in c file
+
+---
+ part1/mylist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 7954efe..5b938c7 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -80,7 +80,7 @@ void flipSignDouble(void *data) {
+ 
+ 
+ 
+-int comparDouble(const void *data1, const void *data2) {
++int compareDouble(const void *data1, const void *data2) {
+ 	//compare two double values pointed to by the two pointers
+ 	//return 0 if same value, else return 1
+ 	
+-- 
+2.34.1
+
+
+From aa4f3c84a57fb9c2254cbf9972515d8e1c95d40f Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:47:21 -0400
+Subject: [PATCH 07/20] fixing errors in addAfter
+
+---
+ part1/mylist.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 5b938c7..2346cbc 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -137,22 +137,25 @@ struct Node *addAfter(struct List *list, struct Node *prevNode, void *data) {
+ 	
+ 	//create node
+ 	struct Node *new = (struct Node *)malloc(sizeof(struct Node));
+-	if(prevNode == NULL) {
+-		addFront(list, data);
++	new->data = data;
++	if(prevNode == NULL || isEmptyList(list)) {
++		new->next = list->head;
++		list->head = new;
++		
+ 	}
+ 
+ 	//if the list is empty then addAfter also acts as addFront
+-	if(isEmptyList(list)) {
+-		addFront(list, data);
+-	}
++
+ 
+ 	//if new is NULL, return NULL 
+ 	if(new == NULL) {
+ 		return NULL;
+ 	}
+ 
+-	//set new's data to hold the given data pointer
+-	new->data = data;
++	else{
++
++
++
+ 
+ 	//insert the node after prevNode
+ 	
+@@ -161,6 +164,7 @@ struct Node *addAfter(struct List *list, struct Node *prevNode, void *data) {
+ 
+ 	//prevNode next now equals the new node
+ 	prevNode->next = new;
++	}
+ 
+ 	return new;
+ 
+-- 
+2.34.1
+
+
+From 0a4d11ba396c59417d4b5b0fe89677c666a4812d Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:53:35 -0400
+Subject: [PATCH 08/20] fixed errors to get intended output of test
+
+---
+ part1/mylist.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/part1/mylist.c b/part1/mylist.c
+index 2346cbc..8be2da0 100644
+--- a/part1/mylist.c
++++ b/part1/mylist.c
+@@ -137,6 +137,9 @@ struct Node *addAfter(struct List *list, struct Node *prevNode, void *data) {
+ 	
+ 	//create node
+ 	struct Node *new = (struct Node *)malloc(sizeof(struct Node));
++	if(new == NULL) {
++		return NULL;
++	}
+ 	new->data = data;
+ 	if(prevNode == NULL || isEmptyList(list)) {
+ 		new->next = list->head;
+@@ -147,16 +150,8 @@ struct Node *addAfter(struct List *list, struct Node *prevNode, void *data) {
+ 	//if the list is empty then addAfter also acts as addFront
+ 
+ 
+-	//if new is NULL, return NULL 
+-	if(new == NULL) {
+-		return NULL;
+-	}
+-
+ 	else{
+ 
+-
+-
+-
+ 	//insert the node after prevNode
+ 	
+ 	//new node's next will be what was previously prevNode's next
+-- 
+2.34.1
+
+
+From 374969036f603a01f0f69018c9f7670d2d6d7ab1 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:53:59 -0400
+Subject: [PATCH 09/20] final version of Makefile that works as intended
+
+---
+ part1/Makefile | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+ create mode 100644 part1/Makefile
+
+diff --git a/part1/Makefile b/part1/Makefile
+new file mode 100644
+index 0000000..3928c10
+--- /dev/null
++++ b/part1/Makefile
+@@ -0,0 +1,30 @@
++
++
++
++CC = gcc
++CFLAGS = -g -Wall -Wpedantic -std=c17
++LDFLAGS =
++LDLIBS = 
++
++LIB = libmylist.a
++
++mylist: mylist-test.o $(LIB)
++	$(CC) $(CFLAGS) -o mylist mylist-test.o -L. -lmylist
++
++$(LIB): mylist.o
++	ar rcs $(LIB) mylist.o
++
++mylist: mylist.o mylist-test.o
++
++mylist.o: mylist.c mylist.h
++
++mylist-test.o: mylist-test.c mylist.h
++
++.PHONY: clean
++clean: rm -f *.o a.out core mylist $(LIB)
++
++.PHONY: all
++all:
++	clean mylist $(LIB)
++
++
+-- 
+2.34.1
+
+
+From c972f4e9837d353c31ee06dd40c5c3d96d5b4d04 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 16:56:08 -0400
+Subject: [PATCH 10/20] fixed final Makefile error`
+
+---
+ part1/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 3928c10..92b148b 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -21,7 +21,8 @@ mylist.o: mylist.c mylist.h
+ mylist-test.o: mylist-test.c mylist.h
+ 
+ .PHONY: clean
+-clean: rm -f *.o a.out core mylist $(LIB)
++clean: 
++	rm -f *.o a.out core mylist $(LIB)
+ 
+ .PHONY: all
+ all:
+-- 
+2.34.1
+
+
+From f04577c4f1aad4b8e4abd0067149cdfee60bea87 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 17:51:08 -0400
+Subject: [PATCH 11/20] took out -L and -l flags in Makefile
+
+---
+ part1/Makefile | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 92b148b..5a21e27 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -6,13 +6,14 @@ CFLAGS = -g -Wall -Wpedantic -std=c17
+ LDFLAGS =
+ LDLIBS = 
+ 
+-LIB = libmylist.a
++
+ 
+ mylist: mylist-test.o $(LIB)
+-	$(CC) $(CFLAGS) -o mylist mylist-test.o -L. -lmylist
++	$(CC) $(CFLAGS) -o mylist mylist-test.o libmylist.a
++
++libmylist.a: mylist.o
++	ar rcs libmylist.a mylist.o
+ 
+-$(LIB): mylist.o
+-	ar rcs $(LIB) mylist.o
+ 
+ mylist: mylist.o mylist-test.o
+ 
+-- 
+2.34.1
+
+
+From 4d48c2e89d7619f26ebd983cad05d9d18eed771a Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 20:44:58 -0400
+Subject: [PATCH 12/20] first version of program
+
+---
+ part2/revecho.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
+ create mode 100644 part2/revecho.c
+
+diff --git a/part2/revecho.c b/part2/revecho.c
+new file mode 100644
+index 0000000..3e6cda1
+--- /dev/null
++++ b/part2/revecho.c
+@@ -0,0 +1,65 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include "mylist.h"
++#include <string.h>
++
++
++//compare method 
++int compareStrings(const void *a, const void *b) {
++	//make pointers char * to succcessfully use strcmp() function 
++	const char *string1 = a;
++	const char *string2 = b;
++
++	//strcmp returns 0 if strings are equal
++	//returns non zero otherwise
++	return strcmp(string1, string2);
++}
++
++//main method
++int main(int argc, char **argv) {
++	//create list
++	struct List list;
++
++	//initialize empty list 
++	initList(&list);
++
++	//if # arguments in command line is less than or equal to 1, return 1
++	if(argc <= 1) {
++		return 1;
++	}
++	//increment argv because first thing in command line is ./revecho and we don't want to print this
++
++	argv++;
++
++	//while there is a pointer at *argv -> while there is a string being pointed to, not NULL,build list)
++	while(*argv) {
++		addFront(&list, *argv++);
++	} 
++	//starting at beginning of list, but addFront puts each next incremental node in front of what was just put in, therefore building backwards
++
++	//get head node, set equal to traversal node
++	Struct Node *current = list->head;
++
++	//print list while traversal node is not NULL
++	while(current !=NULL) {
++		//cast current to a char * pointer becuase the data is a string
++		printf("%s\n", (char *)current->data);
++		//increment to next node in list
++		current = current->next;
++	}
++
++	//looking for dude
++	//use findNode function with "dude" as dataSought param, and compareString as compare function parameter
++	//compareString defined outside of main 
++	if(findNode(&list, "dude", compareStrings)) {
++		printf("dude found\n");
++	}
++	else {
++		printf("dude not found\n");
++	}
++
++	//removeAllNodes(&list) to remove all nodes at the end to prevent memory erros/leaks
++	//free all nodes using removeAllNodes method because we have already printed them, so we need to free this space used
++	removeAllNodes(&list);
++	return 0;
++}
+-- 
+2.34.1
+
+
+From 728368ae82db633a583e38630fbb998f04e1f0ee Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 20:48:52 -0400
+Subject: [PATCH 13/20] created Makefile
+
+---
+ part2/Makefile | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 part2/Makefile
+
+diff --git a/part2/Makefile b/part2/Makefile
+new file mode 100644
+index 0000000..1c66b65
+--- /dev/null
++++ b/part2/Makefile
+@@ -0,0 +1,21 @@
++
++
++CC = gcc
++CFLAGS = -g -Wall -Wpedantic -std=c17
++LDFLAGS =
++LDLIBS = -L../part1-lmylist
++
++INCFLAGS = -l../part1
++
++revecho: revecho.o
++	$(CC) -o revecho revecho.o $(LDFLAGS) $(LDLIBS)
++
++revecho.o: revecho.c
++	$(CC) $(CFLAGS) $(INCFLAGS) -c -o revecho.o
++
++revecho.c
++
++clean:
++	rm -f revecho revecho.o
++.PHONY all
++all: clean revecho
+-- 
+2.34.1
+
+
+From 56d57e72a5a79d52044be1ebb2771893e8784e91 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 20:51:17 -0400
+Subject: [PATCH 14/20] fixing errors tyo Makefile to compile correctly
+
+---
+ part2/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/part2/Makefile b/part2/Makefile
+index 1c66b65..a67c93b 100644
+--- a/part2/Makefile
++++ b/part2/Makefile
+@@ -11,11 +11,9 @@ revecho: revecho.o
+ 	$(CC) -o revecho revecho.o $(LDFLAGS) $(LDLIBS)
+ 
+ revecho.o: revecho.c
+-	$(CC) $(CFLAGS) $(INCFLAGS) -c -o revecho.o
+-
+-revecho.c
++	$(CC) $(CFLAGS) $(INCFLAGS) -c -o revecho.o revecho.c
+ 
+ clean:
+ 	rm -f revecho revecho.o
+-.PHONY all
++.PHONY: all
+ all: clean revecho
+-- 
+2.34.1
+
+
+From f1900357c239eda8f544e027032bcc8cd9861ca3 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 22:07:58 -0400
+Subject: [PATCH 15/20] fixing makefile so that part2 works
+
+---
+ part1/Makefile | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/part1/Makefile b/part1/Makefile
+index 5a21e27..1950bda 100644
+--- a/part1/Makefile
++++ b/part1/Makefile
+@@ -8,25 +8,23 @@ LDLIBS =
+ 
+ 
+ 
+-mylist: mylist-test.o $(LIB)
+-	$(CC) $(CFLAGS) -o mylist mylist-test.o libmylist.a
++mylist: mylist-test.o libmylist.a
++	$(CC) -o mylist mylist-test.o libmylist.a
+ 
+ libmylist.a: mylist.o
+ 	ar rcs libmylist.a mylist.o
+ 
+ 
+-mylist: mylist.o mylist-test.o
+-
+ mylist.o: mylist.c mylist.h
+ 
+ mylist-test.o: mylist-test.c mylist.h
+ 
+ .PHONY: clean
+ clean: 
+-	rm -f *.o a.out core mylist $(LIB)
++	rm -f *.o a.out core mylist libmylist.a
+ 
+ .PHONY: all
+ all:
+-	clean mylist $(LIB)
++	clean mylist libmylist.a
+ 
+ 
+-- 
+2.34.1
+
+
+From 99556948baecbd442eb16c6c5a781f686016a922 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 22:26:59 -0400
+Subject: [PATCH 16/20] fixing errors in revecho.c after first fun of Makefile
+
+---
+ part2/revecho.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/revecho.c b/part2/revecho.c
+index 3e6cda1..1c4af09 100644
+--- a/part2/revecho.c
++++ b/part2/revecho.c
+@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
+ 	//starting at beginning of list, but addFront puts each next incremental node in front of what was just put in, therefore building backwards
+ 
+ 	//get head node, set equal to traversal node
+-	Struct Node *current = list->head;
++	struct Node *current = list->head;
+ 
+ 	//print list while traversal node is not NULL
+ 	while(current !=NULL) {
+-- 
+2.34.1
+
+
+From 478fcd11969e61928d5016ef9350927843986484 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 22:27:55 -0400
+Subject: [PATCH 17/20] fixing errors in revecho.c continued
+
+---
+ part2/revecho.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/revecho.c b/part2/revecho.c
+index 1c4af09..e4da7a1 100644
+--- a/part2/revecho.c
++++ b/part2/revecho.c
+@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
+ 	//starting at beginning of list, but addFront puts each next incremental node in front of what was just put in, therefore building backwards
+ 
+ 	//get head node, set equal to traversal node
+-	struct Node *current = list->head;
++	struct Node *current = list.head;
+ 
+ 	//print list while traversal node is not NULL
+ 	while(current !=NULL) {
+-- 
+2.34.1
+
+
+From 883c9236f4807bda5c15059b35164daf448f25ee Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 23:03:43 -0400
+Subject: [PATCH 18/20] README.txt written with description and valgrind
+ outputs
+
+---
+ README.txt | 103 +++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 100 insertions(+), 3 deletions(-)
+
+diff --git a/README.txt b/README.txt
+index 66dfd3e..d227647 100644
+--- a/README.txt
++++ b/README.txt
+@@ -1,11 +1,108 @@
+ This file should contain:
+ 
+-  - your name
+-  - your UNI
+-  - lab assignment number
++  - Jordyn Jaffe
++  - jtj2127
++  - lab3
+   - description for each part
+   
+ The description should indicate whether your solution for the part is
+ working or not.  You may also want to include anything else you would
+ like to communicate to the grader such as extra functionalities you
+ implemented or how you tried to fix your non-working code.
++
++Part 1: My part1 code and Makefile work as intended and expected; tests run successfully with no errors. There are no memory leaks, thus everything in Part1, both the functions and Makefile work as expected with no errors or memory leaks.
++
++Part 2: My part2 code also works successfully and accesses the library created in part1 successfully. Part2 code (revecho.c program) and Makefile run as expected with no errors or memory leaks; ./revecho testing works and output is successful. 
++
++
++==3891163== Memcheck, a memory error detector
++==3891163== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==3891163== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==3891163== Command: ./mylist
++==3891163== 
++testing addFront(): 9.0 8.0 7.0 6.0 5.0 4.0 3.0 2.0 1.0 
++testing flipSignDouble(): -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 
++testing flipSignDouble() again: 9.0 8.0 7.0 6.0 5.0 4.0 3.0 2.0 1.0 
++testing findNode(): OK
++popped 9.0, the rest is: [ 8.0 7.0 6.0 5.0 4.0 3.0 2.0 1.0 ]
++popped 8.0, the rest is: [ 7.0 6.0 5.0 4.0 3.0 2.0 1.0 ]
++popped 7.0, the rest is: [ 6.0 5.0 4.0 3.0 2.0 1.0 ]
++popped 6.0, the rest is: [ 5.0 4.0 3.0 2.0 1.0 ]
++popped 5.0, the rest is: [ 4.0 3.0 2.0 1.0 ]
++popped 4.0, the rest is: [ 3.0 2.0 1.0 ]
++popped 3.0, the rest is: [ 2.0 1.0 ]
++popped 2.0, the rest is: [ 1.0 ]
++popped 1.0, the rest is: [ ]
++testing addAfter(): 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 
++popped 1.0, and reversed the rest: [ 9.0 8.0 7.0 6.0 5.0 4.0 3.0 2.0 ]
++popped 9.0, and reversed the rest: [ 2.0 3.0 4.0 5.0 6.0 7.0 8.0 ]
++popped 2.0, and reversed the rest: [ 8.0 7.0 6.0 5.0 4.0 3.0 ]
++popped 8.0, and reversed the rest: [ 3.0 4.0 5.0 6.0 7.0 ]
++popped 3.0, and reversed the rest: [ 7.0 6.0 5.0 4.0 ]
++popped 7.0, and reversed the rest: [ 4.0 5.0 6.0 ]
++popped 4.0, and reversed the rest: [ 6.0 5.0 ]
++popped 6.0, and reversed the rest: [ 5.0 ]
++popped 5.0, and reversed the rest: [ ]
++==3891163== 
++==3891163== HEAP SUMMARY:
++==3891163==     in use at exit: 0 bytes in 0 blocks
++==3891163==   total heap usage: 19 allocs, 19 frees, 1,824 bytes allocated
++==3891163== 
++==3891163== All heap blocks were freed -- no leaks are possible
++==3891163== 
++==3891163== For lists of detected and suppressed errors, rerun with: -s
++==3891163== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++
++
++==3892644== Memcheck, a memory error detector
++==3892644== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==3892644== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==3892644== Command: ./revecho
++==3892644== 
++==3892644== 
++==3892644== HEAP SUMMARY:
++==3892644==     in use at exit: 0 bytes in 0 blocks
++==3892644==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
++==3892644== 
++==3892644== All heap blocks were freed -- no leaks are possible
++==3892644== 
++==3892644== For lists of detected and suppressed errors, rerun with: -s
++==3892644== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==3892945== Memcheck, a memory error detector
++==3892945== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==3892945== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==3892945== Command: ./revecho hello world dude
++==3892945== 
++dude
++world
++hello
++
++dude found
++==3892945== 
++==3892945== HEAP SUMMARY:
++==3892945==     in use at exit: 0 bytes in 0 blocks
++==3892945==   total heap usage: 4 allocs, 4 frees, 3,632 bytes allocated
++==3892945== 
++==3892945== All heap blocks were freed -- no leaks are possible
++==3892945== 
++==3892945== For lists of detected and suppressed errors, rerun with: -s
++==3892945== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
++==3893495== Memcheck, a memory error detector
++==3893495== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
++==3893495== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
++==3893495== Command: ./revecho hello world friend
++==3893495== 
++friend
++world
++hello
++
++dude not found
++==3893495== 
++==3893495== HEAP SUMMARY:
++==3893495==     in use at exit: 0 bytes in 0 blocks
++==3893495==   total heap usage: 4 allocs, 4 frees, 4,656 bytes allocated
++==3893495== 
++==3893495== All heap blocks were freed -- no leaks are possible
++==3893495== 
++==3893495== For lists of detected and suppressed errors, rerun with: -s
++==3893495== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+-- 
+2.34.1
+
+
+From 3ed2766694d4f34f07fad9b47ac768519423ea85 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 23:04:17 -0400
+Subject: [PATCH 19/20] final commiting of Makefile
+
+---
+ part2/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/part2/Makefile b/part2/Makefile
+index a67c93b..43c7056 100644
+--- a/part2/Makefile
++++ b/part2/Makefile
+@@ -3,9 +3,9 @@
+ CC = gcc
+ CFLAGS = -g -Wall -Wpedantic -std=c17
+ LDFLAGS =
+-LDLIBS = -L../part1-lmylist
++LDLIBS = -L../part1 -lmylist  
+ 
+-INCFLAGS = -l../part1
++INCFLAGS = -I../part1
+ 
+ revecho: revecho.o
+ 	$(CC) -o revecho revecho.o $(LDFLAGS) $(LDLIBS)
+-- 
+2.34.1
+
+
+From 90e068171e6f53986cd44471709687ab98e26b49 Mon Sep 17 00:00:00 2001
+From: Jordyn Jaffe <jtj2127@columbia.edu>
+Date: Mon, 23 Oct 2023 23:04:38 -0400
+Subject: [PATCH 20/20] final commit of revecho.c
+
+---
+ part2/revecho.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/part2/revecho.c b/part2/revecho.c
+index e4da7a1..9ff716d 100644
+--- a/part2/revecho.c
++++ b/part2/revecho.c
+@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
+ 	//looking for dude
+ 	//use findNode function with "dude" as dataSought param, and compareString as compare function parameter
+ 	//compareString defined outside of main 
++	printf("\n");
+ 	if(findNode(&list, "dude", compareStrings)) {
+ 		printf("dude found\n");
+ 	}
+-- 
+2.34.1
+
